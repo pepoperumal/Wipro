@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dandelions</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="branch branch--green">
+      <img class="branch__stem" src="stem-green.svg" alt="" />
+      <img class="branch__head" src="head-green.svg" alt="" />
+      <svg class="subs" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+    <radialGradient id="sub-green-glow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1">
+      <stop offset="0.0000" stop-color="#64C08B" stop-opacity="1.0000"/>
+      <stop offset="0.4583" stop-color="#63C08B" stop-opacity="1.0000"/>
+      <stop offset="0.4792" stop-color="#5FC089" stop-opacity="1.0000"/>
+      <stop offset="0.5000" stop-color="#5CC088" stop-opacity="1.0000"/>
+      <stop offset="0.5208" stop-color="#53C084" stop-opacity="1.0000"/>
+      <stop offset="0.5417" stop-color="#4FC082" stop-opacity="1.0000"/>
+      <stop offset="0.5625" stop-color="#4BC080" stop-opacity="0.9922"/>
+      <stop offset="0.5833" stop-color="#47C07F" stop-opacity="0.9686"/>
+      <stop offset="0.6042" stop-color="#44C07E" stop-opacity="0.9412"/>
+      <stop offset="0.6250" stop-color="#42C17D" stop-opacity="0.9176"/>
+      <stop offset="0.6458" stop-color="#3FC07B" stop-opacity="0.8706"/>
+      <stop offset="0.6667" stop-color="#3DBF7B" stop-opacity="0.8235"/>
+      <stop offset="0.6875" stop-color="#3BC07A" stop-opacity="0.7686"/>
+      <stop offset="0.7083" stop-color="#3ABF79" stop-opacity="0.7294"/>
+      <stop offset="0.7292" stop-color="#38BE78" stop-opacity="0.6941"/>
+      <stop offset="0.7500" stop-color="#37BD79" stop-opacity="0.6588"/>
+      <stop offset="0.7708" stop-color="#35BB77" stop-opacity="0.6196"/>
+      <stop offset="0.7917" stop-color="#33BB76" stop-opacity="0.5843"/>
+      <stop offset="0.8125" stop-color="#31B976" stop-opacity="0.5490"/>
+      <stop offset="0.8333" stop-color="#32B977" stop-opacity="0.5098"/>
+      <stop offset="0.8542" stop-color="#34B977" stop-opacity="0.3451"/>
+      <stop offset="0.8750" stop-color="#32B977" stop-opacity="0.3020"/>
+      <stop offset="0.8958" stop-color="#2FB976" stop-opacity="0.2588"/>
+      <stop offset="0.9167" stop-color="#2EB574" stop-opacity="0.2118"/>
+      <stop offset="0.9375" stop-color="#29B273" stop-opacity="0.1686"/>
+      <stop offset="0.9583" stop-color="#28AF70" stop-opacity="0.1255"/>
+      <stop offset="0.9792" stop-color="#29B070" stop-opacity="0.0980"/>
+      <stop offset="1.0000" stop-color="#28B073" stop-opacity="0.0549"/>
+    </radialGradient>
+    <g id="sub-green-motif">
+      <circle cx="0" cy="0" r="1" fill="url(#sub-green-glow)"/>
+      <g fill="#6AC38D">
+        <circle cx="0.62900" cy="-0.00202" r="0.01712"/>
+        <circle cx="0.62133" cy="0.08730" r="0.01712"/>
+        <circle cx="0.60154" cy="0.17535" r="0.01712"/>
+        <circle cx="0.56965" cy="0.25890" r="0.01712"/>
+        <circle cx="0.52557" cy="0.33739" r="0.01712"/>
+        <circle cx="0.47135" cy="0.40819" r="0.01712"/>
+        <circle cx="0.40692" cy="0.47135" r="0.01712"/>
+        <circle cx="0.33485" cy="0.52429" r="0.01712"/>
+        <circle cx="0.25567" cy="0.56639" r="0.01712"/>
+        <circle cx="0.17083" cy="0.59695" r="0.01712"/>
+        <circle cx="0.08345" cy="0.61546" r="0.01712"/>
+        <circle cx="-0.00648" cy="0.62057" r="0.01712"/>
+        <circle cx="-0.09580" cy="0.61355" r="0.01712"/>
+        <circle cx="-0.18320" cy="0.59378" r="0.01712"/>
+        <circle cx="-0.26675" cy="0.56125" r="0.01712"/>
+        <circle cx="-0.34523" cy="0.51793" r="0.01712"/>
+        <circle cx="-0.41667" cy="0.46305" r="0.01712"/>
+        <circle cx="-0.47922" cy="0.39928" r="0.01712"/>
+        <circle cx="-0.53282" cy="0.32654" r="0.01712"/>
+        <circle cx="-0.57497" cy="0.24750" r="0.01712"/>
+        <circle cx="-0.60561" cy="0.16327" r="0.01712"/>
+        <circle cx="-0.62348" cy="0.07520" r="0.01712"/>
+        <circle cx="-0.62927" cy="-0.01415" r="0.01712"/>
+        <circle cx="-0.62159" cy="-0.10347" r="0.01712"/>
+        <circle cx="-0.60181" cy="-0.19153" r="0.01712"/>
+        <circle cx="-0.56992" cy="-0.27512" r="0.01712"/>
+        <circle cx="-0.52594" cy="-0.35362" r="0.01712"/>
+        <circle cx="-0.47165" cy="-0.42445" r="0.01712"/>
+        <circle cx="-0.40726" cy="-0.48759" r="0.01712"/>
+        <circle cx="-0.33510" cy="-0.54058" r="0.01712"/>
+        <circle cx="-0.25601" cy="-0.58268" r="0.01712"/>
+        <circle cx="-0.17113" cy="-0.61330" r="0.01712"/>
+        <circle cx="-0.08371" cy="-0.63181" r="0.01712"/>
+        <circle cx="0.00627" cy="-0.63691" r="0.01712"/>
+        <circle cx="0.09560" cy="-0.62989" r="0.01712"/>
+        <circle cx="0.18303" cy="-0.61010" r="0.01712"/>
+        <circle cx="0.26662" cy="-0.57759" r="0.01712"/>
+        <circle cx="0.34510" cy="-0.53416" r="0.01712"/>
+        <circle cx="0.41656" cy="-0.47932" r="0.01712"/>
+        <circle cx="0.47908" cy="-0.41550" r="0.01712"/>
+        <circle cx="0.53270" cy="-0.34278" r="0.01712"/>
+        <circle cx="0.57483" cy="-0.26362" r="0.01712"/>
+        <circle cx="0.60547" cy="-0.17938" r="0.01712"/>
+        <circle cx="0.62331" cy="-0.09136" r="0.01712"/>
+      </g>
+      <g fill="#79C893">
+        <circle cx="0.75725" cy="-0.00073" r="0.02062"/>
+        <circle cx="0.74831" cy="0.10691" r="0.02062"/>
+        <circle cx="0.72414" cy="0.21266" r="0.02062"/>
+        <circle cx="0.68529" cy="0.31331" r="0.02062"/>
+        <circle cx="0.63304" cy="0.40753" r="0.02062"/>
+        <circle cx="0.56745" cy="0.49353" r="0.02062"/>
+        <circle cx="0.49036" cy="0.56937" r="0.02062"/>
+        <circle cx="0.40308" cy="0.63306" r="0.02062"/>
+        <circle cx="0.30753" cy="0.68403" r="0.02062"/>
+        <circle cx="0.20626" cy="0.72034" r="0.02062"/>
+        <circle cx="0.10054" cy="0.74262" r="0.02062"/>
+        <circle cx="-0.00772" cy="0.74897" r="0.02062"/>
+        <circle cx="-0.11540" cy="0.74008" r="0.02062"/>
+        <circle cx="-0.22051" cy="0.71651" r="0.02062"/>
+        <circle cx="-0.32115" cy="0.67762" r="0.02062"/>
+        <circle cx="-0.41605" cy="0.62477" r="0.02062"/>
+        <circle cx="-0.50141" cy="0.55915" r="0.02062"/>
+        <circle cx="-0.57720" cy="0.48209" r="0.02062"/>
+        <circle cx="-0.64092" cy="0.39481" r="0.02062"/>
+        <circle cx="-0.69188" cy="0.29993" r="0.02062"/>
+        <circle cx="-0.72881" cy="0.19800" r="0.02062"/>
+        <circle cx="-0.75043" cy="0.09227" r="0.02062"/>
+        <circle cx="-0.75746" cy="-0.01542" r="0.02062"/>
+        <circle cx="-0.74853" cy="-0.12302" r="0.02062"/>
+        <circle cx="-0.72433" cy="-0.22874" r="0.02062"/>
+        <circle cx="-0.68545" cy="-0.32938" r="0.02062"/>
+        <circle cx="-0.63323" cy="-0.42368" r="0.02062"/>
+        <circle cx="-0.56761" cy="-0.50965" r="0.02062"/>
+        <circle cx="-0.48996" cy="-0.58545" r="0.02062"/>
+        <circle cx="-0.40331" cy="-0.64911" r="0.02062"/>
+        <circle cx="-0.30775" cy="-0.70010" r="0.02062"/>
+        <circle cx="-0.20648" cy="-0.73639" r="0.02062"/>
+        <circle cx="-0.10013" cy="-0.75871" r="0.02062"/>
+        <circle cx="0.00755" cy="-0.76505" r="0.02062"/>
+        <circle cx="0.11518" cy="-0.75614" r="0.02062"/>
+        <circle cx="0.22026" cy="-0.73257" r="0.02062"/>
+        <circle cx="0.32154" cy="-0.69373" r="0.02062"/>
+        <circle cx="0.41584" cy="-0.64088" r="0.02062"/>
+        <circle cx="0.50118" cy="-0.57527" r="0.02062"/>
+        <circle cx="0.57695" cy="-0.49817" r="0.02062"/>
+        <circle cx="0.64067" cy="-0.41093" r="0.02062"/>
+        <circle cx="0.69162" cy="-0.31603" r="0.02062"/>
+        <circle cx="0.72854" cy="-0.21412" r="0.02062"/>
+        <circle cx="0.75024" cy="-0.10835" r="0.02062"/>
+      </g>
+      <g fill="#8DCD9B">
+        <circle cx="0.88633" cy="0.00054" r="0.02543"/>
+        <circle cx="0.87615" cy="0.12663" r="0.02543"/>
+        <circle cx="0.84748" cy="0.25017" r="0.02543"/>
+        <circle cx="0.80226" cy="0.36798" r="0.02543"/>
+        <circle cx="0.74050" cy="0.47815" r="0.02543"/>
+        <circle cx="0.66407" cy="0.57877" r="0.02543"/>
+        <circle cx="0.57366" cy="0.66726" r="0.02543"/>
+        <circle cx="0.47177" cy="0.74241" r="0.02543"/>
+        <circle cx="0.36031" cy="0.80165" r="0.02543"/>
+        <circle cx="0.24125" cy="0.84495" r="0.02543"/>
+        <circle cx="0.11706" cy="0.87041" r="0.02543"/>
+        <circle cx="-0.00902" cy="0.87806" r="0.02543"/>
+        <circle cx="-0.13511" cy="0.86787" r="0.02543"/>
+        <circle cx="-0.25800" cy="0.83986" r="0.02543"/>
+        <circle cx="-0.37645" cy="0.79463" r="0.02543"/>
+        <circle cx="-0.48662" cy="0.73287" r="0.02543"/>
+        <circle cx="-0.58725" cy="0.65582" r="0.02543"/>
+        <circle cx="-0.67575" cy="0.56539" r="0.02543"/>
+        <circle cx="-0.75026" cy="0.46349" r="0.02543"/>
+        <circle cx="-0.81014" cy="0.35206" r="0.02543"/>
+        <circle cx="-0.85278" cy="0.23298" r="0.02543"/>
+        <circle cx="-0.87827" cy="0.10943" r="0.02543"/>
+        <circle cx="-0.88653" cy="-0.01666" r="0.02543"/>
+        <circle cx="-0.87571" cy="-0.14274" r="0.02543"/>
+        <circle cx="-0.84767" cy="-0.26628" r="0.02543"/>
+        <circle cx="-0.80247" cy="-0.38409" r="0.02543"/>
+        <circle cx="-0.74070" cy="-0.49426" r="0.02543"/>
+        <circle cx="-0.66429" cy="-0.59488" r="0.02543"/>
+        <circle cx="-0.57388" cy="-0.68339" r="0.02543"/>
+        <circle cx="-0.47197" cy="-0.75853" r="0.02543"/>
+        <circle cx="-0.35989" cy="-0.81773" r="0.02543"/>
+        <circle cx="-0.24145" cy="-0.86107" r="0.02543"/>
+        <circle cx="-0.11727" cy="-0.88652" r="0.02543"/>
+        <circle cx="0.00881" cy="-0.89416" r="0.02543"/>
+        <circle cx="0.13490" cy="-0.88396" r="0.02543"/>
+        <circle cx="0.25779" cy="-0.85595" r="0.02543"/>
+        <circle cx="0.37624" cy="-0.81074" r="0.02543"/>
+        <circle cx="0.48643" cy="-0.74897" r="0.02543"/>
+        <circle cx="0.58704" cy="-0.67191" r="0.02543"/>
+        <circle cx="0.67555" cy="-0.58148" r="0.02543"/>
+        <circle cx="0.75004" cy="-0.47960" r="0.02543"/>
+        <circle cx="0.80990" cy="-0.36817" r="0.02543"/>
+        <circle cx="0.85258" cy="-0.24909" r="0.02543"/>
+        <circle cx="0.87804" cy="-0.12554" r="0.02543"/>
+      </g>
+    </g>
+        </defs>
+        <g class="sub-slot sub-slot--g1" tabindex="0"><g class="sub sub--g1"><use href="#sub-green-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--g2" tabindex="0"><g class="sub sub--g2"><use href="#sub-green-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--g3" tabindex="0"><g class="sub sub--g3"><use href="#sub-green-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--g4" tabindex="0"><g class="sub sub--g4"><use href="#sub-green-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+      </svg>
+    </div>
+    <div class="branch branch--purple">
+      <img class="branch__stem" src="stem-purple.svg" alt="" />
+      <img class="branch__head" src="head-purple.svg" alt="" />
+      <svg class="subs" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+    <radialGradient id="sub-purple-glow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1">
+      <stop offset="0.0000" stop-color="#C758B4" stop-opacity="0.9961"/>
+      <stop offset="0.0208" stop-color="#C65BB4" stop-opacity="0.9843"/>
+      <stop offset="0.0417" stop-color="#C65DB6" stop-opacity="0.9647"/>
+      <stop offset="0.0625" stop-color="#C660B8" stop-opacity="0.9490"/>
+      <stop offset="0.0833" stop-color="#C763B9" stop-opacity="0.9333"/>
+      <stop offset="0.1042" stop-color="#C766BB" stop-opacity="0.9176"/>
+      <stop offset="0.1250" stop-color="#C769BC" stop-opacity="0.8980"/>
+      <stop offset="0.1458" stop-color="#C76CBE" stop-opacity="0.8863"/>
+      <stop offset="0.1667" stop-color="#C86FBF" stop-opacity="0.8667"/>
+      <stop offset="0.1875" stop-color="#C871C1" stop-opacity="0.8510"/>
+      <stop offset="0.2083" stop-color="#C873C3" stop-opacity="0.8314"/>
+      <stop offset="0.2292" stop-color="#C876C4" stop-opacity="0.8157"/>
+      <stop offset="0.2500" stop-color="#C879C6" stop-opacity="0.8000"/>
+      <stop offset="0.2708" stop-color="#C87CC8" stop-opacity="0.7843"/>
+      <stop offset="0.2917" stop-color="#C87FC9" stop-opacity="0.7647"/>
+      <stop offset="0.3125" stop-color="#C981CB" stop-opacity="0.7490"/>
+      <stop offset="0.3333" stop-color="#CA84CD" stop-opacity="0.7333"/>
+      <stop offset="0.3542" stop-color="#CA87CE" stop-opacity="0.7176"/>
+      <stop offset="0.3750" stop-color="#CA8AD0" stop-opacity="0.6980"/>
+      <stop offset="0.3958" stop-color="#CA8DD1" stop-opacity="0.6824"/>
+      <stop offset="0.4167" stop-color="#CA90D3" stop-opacity="0.6667"/>
+      <stop offset="0.4375" stop-color="#CA93D4" stop-opacity="0.6471"/>
+      <stop offset="0.4583" stop-color="#CB95D6" stop-opacity="0.6314"/>
+      <stop offset="0.4792" stop-color="#CB98D8" stop-opacity="0.6157"/>
+      <stop offset="0.5000" stop-color="#CB9AD8" stop-opacity="0.6000"/>
+      <stop offset="0.5208" stop-color="#CB9DDB" stop-opacity="0.5804"/>
+      <stop offset="0.5417" stop-color="#CCA1DC" stop-opacity="0.5647"/>
+      <stop offset="0.5625" stop-color="#CCA3DE" stop-opacity="0.5490"/>
+      <stop offset="0.5833" stop-color="#CCA6DF" stop-opacity="0.5333"/>
+      <stop offset="0.6042" stop-color="#CCA9E0" stop-opacity="0.5137"/>
+      <stop offset="0.6250" stop-color="#CBABE1" stop-opacity="0.5020"/>
+      <stop offset="0.6458" stop-color="#CDAEE4" stop-opacity="0.4824"/>
+      <stop offset="0.6667" stop-color="#CDB1E5" stop-opacity="0.4667"/>
+      <stop offset="0.6875" stop-color="#CDB4E7" stop-opacity="0.4471"/>
+      <stop offset="0.7083" stop-color="#CCB7E8" stop-opacity="0.4314"/>
+      <stop offset="0.7292" stop-color="#CCB9EA" stop-opacity="0.4157"/>
+      <stop offset="0.7500" stop-color="#CCBBEB" stop-opacity="0.4000"/>
+      <stop offset="0.7708" stop-color="#CDBFED" stop-opacity="0.3843"/>
+      <stop offset="0.7917" stop-color="#CEC3EF" stop-opacity="0.3647"/>
+      <stop offset="0.8125" stop-color="#CEC5F1" stop-opacity="0.3490"/>
+      <stop offset="0.8333" stop-color="#CEC8F3" stop-opacity="0.3294"/>
+      <stop offset="0.8542" stop-color="#CFCCF2" stop-opacity="0.3137"/>
+      <stop offset="0.8750" stop-color="#CDCDF5" stop-opacity="0.2980"/>
+      <stop offset="0.8958" stop-color="#CDD0F8" stop-opacity="0.2824"/>
+      <stop offset="0.9167" stop-color="#CED2F7" stop-opacity="0.2627"/>
+      <stop offset="0.9375" stop-color="#CED6FB" stop-opacity="0.2510"/>
+      <stop offset="0.9583" stop-color="#CFD8FB" stop-opacity="0.2314"/>
+      <stop offset="0.9792" stop-color="#D0DEFF" stop-opacity="0.2157"/>
+      <stop offset="1.0000" stop-color="#D1DDFF" stop-opacity="0.0118"/>
+    </radialGradient>
+    <g id="sub-purple-motif">
+      <circle cx="0" cy="0" r="1" fill="url(#sub-purple-glow)"/>
+      <g fill="#7472CD">
+        <circle cx="0.14526" cy="-0.00892" r="0.00708"/>
+        <circle cx="0.14535" cy="0.01282" r="0.00708"/>
+        <circle cx="0.14021" cy="0.03182" r="0.00708"/>
+        <circle cx="0.13076" cy="0.05258" r="0.00708"/>
+        <circle cx="0.12072" cy="0.07243" r="0.00708"/>
+        <circle cx="0.10996" cy="0.08807" r="0.00708"/>
+        <circle cx="0.10996" cy="0.08807" r="0.00708"/>
+        <circle cx="0.09248" cy="0.10305" r="0.00708"/>
+        <circle cx="0.07653" cy="0.11414" r="0.00708"/>
+        <circle cx="0.05781" cy="0.12389" r="0.00708"/>
+        <circle cx="0.03894" cy="0.13092" r="0.00708"/>
+        <circle cx="0.01689" cy="0.13618" r="0.00708"/>
+        <circle cx="-0.00355" cy="0.13771" r="0.00708"/>
+        <circle cx="-0.02291" cy="0.13602" r="0.00708"/>
+        <circle cx="-0.04441" cy="0.13063" r="0.00708"/>
+        <circle cx="-0.06170" cy="0.12444" r="0.00708"/>
+        <circle cx="-0.07863" cy="0.11396" r="0.00708"/>
+        <circle cx="-0.08296" cy="0.11049" r="0.00708"/>
+        <circle cx="-0.09912" cy="0.09963" r="0.00708"/>
+        <circle cx="-0.11258" cy="0.08620" r="0.00708"/>
+        <circle cx="-0.12785" cy="0.06617" r="0.00708"/>
+        <circle cx="-0.13609" cy="0.05117" r="0.00708"/>
+        <circle cx="-0.14380" cy="0.02931" r="0.00708"/>
+        <circle cx="-0.14864" cy="0.00999" r="0.00708"/>
+        <circle cx="-0.14845" cy="-0.01101" r="0.00708"/>
+        <circle cx="-0.14608" cy="-0.03247" r="0.00708"/>
+        <circle cx="-0.14343" cy="-0.05369" r="0.00708"/>
+        <circle cx="-0.13474" cy="-0.07126" r="0.00708"/>
+        <circle cx="-0.12400" cy="-0.09207" r="0.00708"/>
+        <circle cx="-0.11386" cy="-0.10686" r="0.00708"/>
+        <circle cx="-0.09631" cy="-0.12253" r="0.00708"/>
+        <circle cx="-0.07992" cy="-0.13338" r="0.00708"/>
+        <circle cx="-0.06113" cy="-0.14641" r="0.00708"/>
+        <circle cx="-0.04180" cy="-0.15308" r="0.00708"/>
+        <circle cx="-0.02011" cy="-0.15590" r="0.00708"/>
+        <circle cx="0.00026" cy="-0.15791" r="0.00708"/>
+        <circle cx="0.02256" cy="-0.15573" r="0.00708"/>
+        <circle cx="0.04116" cy="-0.15027" r="0.00708"/>
+        <circle cx="0.06352" cy="-0.14250" r="0.00708"/>
+        <circle cx="0.07928" cy="-0.13342" r="0.00708"/>
+        <circle cx="0.09525" cy="-0.12036" r="0.00708"/>
+        <circle cx="0.11343" cy="-0.10409" r="0.00708"/>
+        <circle cx="0.12473" cy="-0.08772" r="0.00708"/>
+        <circle cx="0.13360" cy="-0.07076" r="0.00708"/>
+        <circle cx="0.14025" cy="-0.05141" r="0.00708"/>
+        <circle cx="0.14544" cy="-0.02963" r="0.00708"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.23724" cy="-0.00848" r="0.00451"/>
+        <circle cx="0.23529" cy="0.02686" r="0.00451"/>
+        <circle cx="0.22801" cy="0.06005" r="0.00451"/>
+        <circle cx="0.21627" cy="0.09065" r="0.00451"/>
+        <circle cx="0.19956" cy="0.12141" r="0.00451"/>
+        <circle cx="0.17827" cy="0.14753" r="0.00451"/>
+        <circle cx="0.15459" cy="0.17334" r="0.00451"/>
+        <circle cx="0.12581" cy="0.19264" r="0.00451"/>
+        <circle cx="0.09535" cy="0.20928" r="0.00451"/>
+        <circle cx="0.06442" cy="0.22077" r="0.00451"/>
+        <circle cx="0.02932" cy="0.22802" r="0.00451"/>
+        <circle cx="-0.00385" cy="0.23001" r="0.00451"/>
+        <circle cx="-0.03727" cy="0.22801" r="0.00451"/>
+        <circle cx="-0.07018" cy="0.21871" r="0.00451"/>
+        <circle cx="-0.10352" cy="0.20669" r="0.00451"/>
+        <circle cx="-0.13420" cy="0.19022" r="0.00451"/>
+        <circle cx="-0.16036" cy="0.16865" r="0.00451"/>
+        <circle cx="-0.18359" cy="0.14539" r="0.00451"/>
+        <circle cx="-0.20502" cy="0.11668" r="0.00451"/>
+        <circle cx="-0.22151" cy="0.08795" r="0.00451"/>
+        <circle cx="-0.23128" cy="0.05538" r="0.00451"/>
+        <circle cx="-0.23854" cy="0.02205" r="0.00451"/>
+        <circle cx="-0.24087" cy="-0.01358" r="0.00451"/>
+        <circle cx="-0.23832" cy="-0.04685" r="0.00451"/>
+        <circle cx="-0.23124" cy="-0.07968" r="0.00451"/>
+        <circle cx="-0.21919" cy="-0.11301" r="0.00451"/>
+        <circle cx="-0.16533" cy="-0.14060" r="0.00451"/>
+        <circle cx="-0.15749" cy="-0.19324" r="0.00451"/>
+        <circle cx="-0.12891" cy="-0.19270" r="0.00451"/>
+        <circle cx="-0.09861" cy="-0.22888" r="0.00451"/>
+        <circle cx="-0.06767" cy="-0.24032" r="0.00451"/>
+        <circle cx="-0.03257" cy="-0.24757" r="0.00451"/>
+        <circle cx="0.00083" cy="-0.25000" r="0.00451"/>
+        <circle cx="0.03406" cy="-0.24801" r="0.00451"/>
+        <circle cx="0.07216" cy="-0.21866" r="0.00451"/>
+        <circle cx="0.09533" cy="-0.19433" r="0.00451"/>
+        <circle cx="0.11930" cy="-0.18979" r="0.00451"/>
+        <circle cx="0.16167" cy="-0.16679" r="0.00451"/>
+        <circle cx="0.20195" cy="-0.13866" r="0.00451"/>
+        <circle cx="0.21826" cy="-0.10854" r="0.00451"/>
+        <circle cx="0.23000" cy="-0.07491" r="0.00451"/>
+        <circle cx="0.23760" cy="-0.04176" r="0.00451"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.27532" cy="-0.00883" r="0.00938"/>
+        <circle cx="0.27302" cy="0.03139" r="0.00938"/>
+        <circle cx="0.26346" cy="0.06942" r="0.00938"/>
+        <circle cx="0.24927" cy="0.10734" r="0.00938"/>
+        <circle cx="0.23036" cy="0.14055" r="0.00938"/>
+        <circle cx="0.20683" cy="0.17357" r="0.00938"/>
+        <circle cx="0.17804" cy="0.19946" r="0.00938"/>
+        <circle cx="0.14531" cy="0.22318" r="0.00938"/>
+        <circle cx="0.11215" cy="0.24222" r="0.00938"/>
+        <circle cx="0.07425" cy="0.25621" r="0.00938"/>
+        <circle cx="0.03637" cy="0.26334" r="0.00938"/>
+        <circle cx="0.03637" cy="0.26334" r="0.00938"/>
+        <circle cx="-0.00387" cy="0.26568" r="0.00938"/>
+        <circle cx="-0.04410" cy="0.26339" r="0.00938"/>
+        <circle cx="-0.08229" cy="0.25407" r="0.00938"/>
+        <circle cx="-0.12001" cy="0.23962" r="0.00938"/>
+        <circle cx="-0.15312" cy="0.22067" r="0.00938"/>
+        <circle cx="-0.18374" cy="0.19713" r="0.00938"/>
+        <circle cx="-0.21224" cy="0.16863" r="0.00938"/>
+        <circle cx="-0.23613" cy="0.13806" r="0.00938"/>
+        <circle cx="-0.25495" cy="0.10261" r="0.00938"/>
+        <circle cx="-0.26658" cy="0.06459" r="0.00938"/>
+        <circle cx="-0.27602" cy="0.02671" r="0.00938"/>
+        <circle cx="-0.27856" cy="-0.01327" r="0.00938"/>
+        <circle cx="-0.27374" cy="-0.05118" r="0.00938"/>
+        <circle cx="-0.26643" cy="-0.09159" r="0.00938"/>
+        <circle cx="-0.25251" cy="-0.12709" r="0.00938"/>
+        <circle cx="-0.23349" cy="-0.16265" r="0.00938"/>
+        <circle cx="-0.20756" cy="-0.19346" r="0.00938"/>
+        <circle cx="-0.18144" cy="-0.22161" r="0.00938"/>
+        <circle cx="-0.14827" cy="-0.24525" r="0.00938"/>
+        <circle cx="-0.11303" cy="-0.26218" r="0.00938"/>
+        <circle cx="-0.07743" cy="-0.27618" r="0.00938"/>
+        <circle cx="-0.03740" cy="-0.28330" r="0.00938"/>
+        <circle cx="0.00087" cy="-0.28822" r="0.00938"/>
+        <circle cx="0.04077" cy="-0.28326" r="0.00938"/>
+        <circle cx="0.07901" cy="-0.27393" r="0.00938"/>
+        <circle cx="0.11690" cy="-0.26221" r="0.00938"/>
+        <circle cx="0.15004" cy="-0.24042" r="0.00938"/>
+        <circle cx="0.18078" cy="-0.21701" r="0.00938"/>
+        <circle cx="0.20924" cy="-0.18854" r="0.00938"/>
+        <circle cx="0.23290" cy="-0.15796" r="0.00938"/>
+        <circle cx="0.25150" cy="-0.12230" r="0.00938"/>
+        <circle cx="0.26564" cy="-0.08676" r="0.00938"/>
+        <circle cx="0.27301" cy="-0.04681" r="0.00938"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.36735" cy="-0.00622" r="0.00937"/>
+        <circle cx="0.36315" cy="0.04574" r="0.00937"/>
+        <circle cx="0.35085" cy="0.09777" r="0.00937"/>
+        <circle cx="0.33212" cy="0.14500" r="0.00937"/>
+        <circle cx="0.30602" cy="0.19253" r="0.00937"/>
+        <circle cx="0.27529" cy="0.23485" r="0.00937"/>
+        <circle cx="0.23715" cy="0.27067" r="0.00937"/>
+        <circle cx="0.19487" cy="0.30143" r="0.00937"/>
+        <circle cx="0.14746" cy="0.32741" r="0.00937"/>
+        <circle cx="0.10015" cy="0.34376" r="0.00937"/>
+        <circle cx="0.10015" cy="0.34376" r="0.00937"/>
+        <circle cx="0.04796" cy="0.35567" r="0.00937"/>
+        <circle cx="-0.00413" cy="0.35800" r="0.00937"/>
+        <circle cx="-0.05844" cy="0.35347" r="0.00937"/>
+        <circle cx="-0.10814" cy="0.34146" r="0.00937"/>
+        <circle cx="-0.15797" cy="0.32254" r="0.00937"/>
+        <circle cx="-0.20517" cy="0.29873" r="0.00937"/>
+        <circle cx="-0.24526" cy="0.26564" r="0.00937"/>
+        <circle cx="-0.28320" cy="0.22786" r="0.00937"/>
+        <circle cx="-0.31429" cy="0.18546" r="0.00937"/>
+        <circle cx="-0.33749" cy="0.14035" r="0.00937"/>
+        <circle cx="-0.35668" cy="0.09090" r="0.00937"/>
+        <circle cx="-0.36849" cy="0.03837" r="0.00937"/>
+        <circle cx="-0.37062" cy="-0.01344" r="0.00937"/>
+        <circle cx="-0.36640" cy="-0.06539" r="0.00937"/>
+        <circle cx="-0.35421" cy="-0.11761" r="0.00937"/>
+        <circle cx="-0.33532" cy="-0.16746" r="0.00937"/>
+        <circle cx="-0.30914" cy="-0.21244" r="0.00937"/>
+        <circle cx="-0.27852" cy="-0.25490" r="0.00937"/>
+        <circle cx="-0.24051" cy="-0.29260" r="0.00937"/>
+        <circle cx="-0.19810" cy="-0.32346" r="0.00937"/>
+        <circle cx="-0.15071" cy="-0.34697" r="0.00937"/>
+        <circle cx="-0.10095" cy="-0.36639" r="0.00937"/>
+        <circle cx="-0.05145" cy="-0.37558" r="0.00937"/>
+        <circle cx="0.00313" cy="-0.38008" r="0.00937"/>
+        <circle cx="0.05508" cy="-0.37554" r="0.00937"/>
+        <circle cx="0.10484" cy="-0.36338" r="0.00937"/>
+        <circle cx="0.15463" cy="-0.34471" r="0.00937"/>
+        <circle cx="0.20212" cy="-0.31853" r="0.00937"/>
+        <circle cx="0.24202" cy="-0.28818" r="0.00937"/>
+        <circle cx="0.28005" cy="-0.24985" r="0.00937"/>
+        <circle cx="0.31102" cy="-0.20757" r="0.00937"/>
+        <circle cx="0.33702" cy="-0.16020" r="0.00937"/>
+        <circle cx="0.35344" cy="-0.11058" r="0.00937"/>
+        <circle cx="0.36534" cy="-0.05821" r="0.00937"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.49754" cy="-0.00645" r="0.01425"/>
+        <circle cx="0.49062" cy="0.06495" r="0.01425"/>
+        <circle cx="0.47403" cy="0.13570" r="0.01425"/>
+        <circle cx="0.45052" cy="0.20199" r="0.01425"/>
+        <circle cx="0.41482" cy="0.26381" r="0.01425"/>
+        <circle cx="0.37218" cy="0.32007" r="0.01425"/>
+        <circle cx="0.32009" cy="0.36984" r="0.01425"/>
+        <circle cx="0.26380" cy="0.41264" r="0.01425"/>
+        <circle cx="0.20196" cy="0.44560" r="0.01425"/>
+        <circle cx="0.13319" cy="0.46933" r="0.01425"/>
+        <circle cx="0.06495" cy="0.48351" r="0.01425"/>
+        <circle cx="-0.00645" cy="0.48817" r="0.01425"/>
+        <circle cx="-0.07754" cy="0.48127" r="0.01425"/>
+        <circle cx="-0.14631" cy="0.46683" r="0.01425"/>
+        <circle cx="-0.21190" cy="0.44089" r="0.01425"/>
+        <circle cx="-0.27641" cy="0.40548" r="0.01425"/>
+        <circle cx="-0.33057" cy="0.36281" r="0.01425"/>
+        <circle cx="-0.38027" cy="0.31298" r="0.01425"/>
+        <circle cx="-0.42264" cy="0.25409" r="0.01425"/>
+        <circle cx="-0.45595" cy="0.19259" r="0.01425"/>
+        <circle cx="-0.47948" cy="0.12627" r="0.01425"/>
+        <circle cx="-0.49621" cy="0.05536" r="0.01425"/>
+        <circle cx="-0.49862" cy="-0.01581" r="0.01425"/>
+        <circle cx="-0.49383" cy="-0.08683" r="0.01425"/>
+        <circle cx="-0.47735" cy="-0.15546" r="0.01425"/>
+        <circle cx="-0.45374" cy="-0.22161" r="0.01425"/>
+        <circle cx="-0.41807" cy="-0.28339" r="0.01425"/>
+        <circle cx="-0.37537" cy="-0.33997" r="0.01425"/>
+        <circle cx="-0.32337" cy="-0.38983" r="0.01425"/>
+        <circle cx="-0.26702" cy="-0.43231" r="0.01425"/>
+        <circle cx="-0.20287" cy="-0.46572" r="0.01425"/>
+        <circle cx="-0.13662" cy="-0.48912" r="0.01425"/>
+        <circle cx="-0.06826" cy="-0.50329" r="0.01425"/>
+        <circle cx="0.00329" cy="-0.50788" r="0.01425"/>
+        <circle cx="0.07431" cy="-0.50325" r="0.01425"/>
+        <circle cx="0.14312" cy="-0.48670" r="0.01425"/>
+        <circle cx="0.20872" cy="-0.46069" r="0.01425"/>
+        <circle cx="0.27293" cy="-0.42739" r="0.01425"/>
+        <circle cx="0.32748" cy="-0.38259" r="0.01425"/>
+        <circle cx="0.37946" cy="-0.33253" r="0.01425"/>
+        <circle cx="0.41996" cy="-0.27609" r="0.01425"/>
+        <circle cx="0.45281" cy="-0.21229" r="0.01425"/>
+        <circle cx="0.47886" cy="-0.14602" r="0.01425"/>
+        <circle cx="0.49288" cy="-0.07753" r="0.01425"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.62541" cy="-0.00403" r="0.01610"/>
+        <circle cx="0.61849" cy="0.08598" r="0.01610"/>
+        <circle cx="0.59945" cy="0.17130" r="0.01610"/>
+        <circle cx="0.56644" cy="0.25635" r="0.01610"/>
+        <circle cx="0.52388" cy="0.33445" r="0.01610"/>
+        <circle cx="0.46919" cy="0.40529" r="0.01610"/>
+        <circle cx="0.40527" cy="0.46656" r="0.01610"/>
+        <circle cx="0.33208" cy="0.52137" r="0.01610"/>
+        <circle cx="0.25403" cy="0.56161" r="0.01610"/>
+        <circle cx="0.16888" cy="0.59239" r="0.01610"/>
+        <circle cx="0.08120" cy="0.61142" r="0.01610"/>
+        <circle cx="-0.00870" cy="0.61602" r="0.01610"/>
+        <circle cx="-0.09643" cy="0.60896" r="0.01610"/>
+        <circle cx="-0.18372" cy="0.58990" r="0.01610"/>
+        <circle cx="-0.26656" cy="0.55682" r="0.01610"/>
+        <circle cx="-0.34480" cy="0.51425" r="0.01610"/>
+        <circle cx="-0.41569" cy="0.45980" r="0.01610"/>
+        <circle cx="-0.47945" cy="0.39610" r="0.01610"/>
+        <circle cx="-0.53177" cy="0.32263" r="0.01610"/>
+        <circle cx="-0.57423" cy="0.24449" r="0.01610"/>
+        <circle cx="-0.60505" cy="0.15930" r="0.01610"/>
+        <circle cx="-0.62402" cy="0.07172" r="0.01610"/>
+        <circle cx="-0.62872" cy="-0.01570" r="0.01610"/>
+        <circle cx="-0.62174" cy="-0.10559" r="0.01610"/>
+        <circle cx="-0.60273" cy="-0.19318" r="0.01610"/>
+        <circle cx="-0.56973" cy="-0.27598" r="0.01610"/>
+        <circle cx="-0.52442" cy="-0.35424" r="0.01610"/>
+        <circle cx="-0.47247" cy="-0.42515" r="0.01610"/>
+        <circle cx="-0.40866" cy="-0.48889" r="0.01610"/>
+        <circle cx="-0.33531" cy="-0.54112" r="0.01610"/>
+        <circle cx="-0.25728" cy="-0.58380" r="0.01610"/>
+        <circle cx="-0.17208" cy="-0.61460" r="0.01610"/>
+        <circle cx="-0.08450" cy="-0.63114" r="0.01610"/>
+        <circle cx="0.00558" cy="-0.63834" r="0.01610"/>
+        <circle cx="0.09317" cy="-0.63138" r="0.01610"/>
+        <circle cx="0.18048" cy="-0.60959" r="0.01610"/>
+        <circle cx="0.26597" cy="-0.57925" r="0.01610"/>
+        <circle cx="0.34403" cy="-0.53406" r="0.01610"/>
+        <circle cx="0.41482" cy="-0.47939" r="0.01610"/>
+        <circle cx="0.47633" cy="-0.41592" r="0.01610"/>
+        <circle cx="0.52833" cy="-0.34480" r="0.01610"/>
+        <circle cx="0.57109" cy="-0.26417" r="0.01610"/>
+        <circle cx="0.60203" cy="-0.18152" r="0.01610"/>
+        <circle cx="0.62089" cy="-0.09397" r="0.01610"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.75559" cy="-0.00426" r="0.02162"/>
+        <circle cx="0.74618" cy="0.10525" r="0.02162"/>
+        <circle cx="0.72232" cy="0.20908" r="0.02162"/>
+        <circle cx="0.68226" cy="0.31078" r="0.02162"/>
+        <circle cx="0.63020" cy="0.40544" r="0.02162"/>
+        <circle cx="0.56628" cy="0.49057" r="0.02162"/>
+        <circle cx="0.48805" cy="0.56617" r="0.02162"/>
+        <circle cx="0.40070" cy="0.63015" r="0.02162"/>
+        <circle cx="0.30602" cy="0.67975" r="0.02162"/>
+        <circle cx="0.20430" cy="0.71772" r="0.02162"/>
+        <circle cx="0.09773" cy="0.73881" r="0.02162"/>
+        <circle cx="-0.00859" cy="0.74619" r="0.02162"/>
+        <circle cx="-0.11769" cy="0.73689" r="0.02162"/>
+        <circle cx="-0.22191" cy="0.71287" r="0.02162"/>
+        <circle cx="-0.32344" cy="0.67524" r="0.02162"/>
+        <circle cx="-0.41574" cy="0.62083" r="0.02162"/>
+        <circle cx="-0.50323" cy="0.55680" r="0.02162"/>
+        <circle cx="-0.57879" cy="0.47881" r="0.02162"/>
+        <circle cx="-0.64300" cy="0.39120" r="0.02162"/>
+        <circle cx="-0.69262" cy="0.29660" r="0.02162"/>
+        <circle cx="-0.72820" cy="0.19495" r="0.02162"/>
+        <circle cx="-0.75162" cy="0.09063" r="0.02162"/>
+        <circle cx="-0.75887" cy="-0.01812" r="0.02162"/>
+        <circle cx="-0.74932" cy="-0.12487" r="0.02162"/>
+        <circle cx="-0.72544" cy="-0.23108" r="0.02162"/>
+        <circle cx="-0.68554" cy="-0.33052" r="0.02162"/>
+        <circle cx="-0.63350" cy="-0.42517" r="0.02162"/>
+        <circle cx="-0.56729" cy="-0.51034" r="0.02162"/>
+        <circle cx="-0.49131" cy="-0.58602" r="0.02162"/>
+        <circle cx="-0.40389" cy="-0.65003" r="0.02162"/>
+        <circle cx="-0.30913" cy="-0.70205" r="0.02162"/>
+        <circle cx="-0.20740" cy="-0.73758" r="0.02162"/>
+        <circle cx="-0.10101" cy="-0.76115" r="0.02162"/>
+        <circle cx="0.00533" cy="-0.76596" r="0.02162"/>
+        <circle cx="0.11460" cy="-0.75867" r="0.02162"/>
+        <circle cx="0.21876" cy="-0.73262" r="0.02162"/>
+        <circle cx="0.32022" cy="-0.69491" r="0.02162"/>
+        <circle cx="0.41485" cy="-0.64282" r="0.02162"/>
+        <circle cx="0.50016" cy="-0.57667" r="0.02162"/>
+        <circle cx="0.57577" cy="-0.50086" r="0.02162"/>
+        <circle cx="0.63980" cy="-0.41336" r="0.02162"/>
+        <circle cx="0.68932" cy="-0.31866" r="0.02162"/>
+        <circle cx="0.72719" cy="-0.21695" r="0.02162"/>
+        <circle cx="0.74834" cy="-0.11040" r="0.02162"/>
+      </g>
+      <g fill="#7472CD">
+        <circle cx="0.88320" cy="-0.00160" r="0.02400"/>
+        <circle cx="0.87380" cy="0.12381" r="0.02400"/>
+        <circle cx="0.84548" cy="0.24724" r="0.02400"/>
+        <circle cx="0.80060" cy="0.36509" r="0.02400"/>
+        <circle cx="0.73916" cy="0.47617" r="0.02400"/>
+        <circle cx="0.66106" cy="0.57586" r="0.02400"/>
+        <circle cx="0.57073" cy="0.66562" r="0.02400"/>
+        <circle cx="0.46930" cy="0.73923" r="0.02400"/>
+        <circle cx="0.35822" cy="0.79820" r="0.02400"/>
+        <circle cx="0.23976" cy="0.84072" r="0.02400"/>
+        <circle cx="0.11695" cy="0.86677" r="0.02400"/>
+        <circle cx="-0.01102" cy="0.87643" r="0.02400"/>
+        <circle cx="-0.13661" cy="0.86445" r="0.02400"/>
+        <circle cx="-0.25973" cy="0.83631" r="0.02400"/>
+        <circle cx="-0.37794" cy="0.79127" r="0.02400"/>
+        <circle cx="-0.48672" cy="0.72969" r="0.02400"/>
+        <circle cx="-0.58846" cy="0.65424" r="0.02400"/>
+        <circle cx="-0.67604" cy="0.56143" r="0.02400"/>
+        <circle cx="-0.75185" cy="0.46235" r="0.02400"/>
+        <circle cx="-0.81099" cy="0.34864" r="0.02400"/>
+        <circle cx="-0.85355" cy="0.23023" r="0.02400"/>
+        <circle cx="-0.87958" cy="0.10739" r="0.02400"/>
+        <circle cx="-0.88652" cy="-0.01817" r="0.02400"/>
+        <circle cx="-0.87719" cy="-0.14616" r="0.02400"/>
+        <circle cx="-0.84885" cy="-0.26924" r="0.02400"/>
+        <circle cx="-0.80395" cy="-0.38743" r="0.02400"/>
+        <circle cx="-0.74237" cy="-0.49603" r="0.02400"/>
+        <circle cx="-0.66430" cy="-0.59784" r="0.02400"/>
+        <circle cx="-0.57399" cy="-0.68547" r="0.02400"/>
+        <circle cx="-0.47249" cy="-0.75890" r="0.02400"/>
+        <circle cx="-0.36140" cy="-0.82049" r="0.02400"/>
+        <circle cx="-0.24296" cy="-0.86310" r="0.02400"/>
+        <circle cx="-0.12013" cy="-0.88912" r="0.02400"/>
+        <circle cx="0.00785" cy="-0.89607" r="0.02400"/>
+        <circle cx="0.13334" cy="-0.88651" r="0.02400"/>
+        <circle cx="0.25666" cy="-0.85808" r="0.02400"/>
+        <circle cx="0.37474" cy="-0.81325" r="0.02400"/>
+        <circle cx="0.48349" cy="-0.74942" r="0.02400"/>
+        <circle cx="0.58530" cy="-0.67388" r="0.02400"/>
+        <circle cx="0.67279" cy="-0.58350" r="0.02400"/>
+        <circle cx="0.74850" cy="-0.48200" r="0.02400"/>
+        <circle cx="0.80772" cy="-0.37096" r="0.02400"/>
+        <circle cx="0.85030" cy="-0.25244" r="0.02400"/>
+        <circle cx="0.87631" cy="-0.12703" r="0.02400"/>
+      </g>
+    </g>
+        </defs>
+        <g class="sub-slot sub-slot--p1" tabindex="0"><g class="sub sub--p1"><use href="#sub-purple-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--p2" tabindex="0"><g class="sub sub--p2"><use href="#sub-purple-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--p3" tabindex="0"><g class="sub sub--p3"><use href="#sub-purple-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--p4" tabindex="0"><g class="sub sub--p4"><use href="#sub-purple-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+        <g class="sub-slot sub-slot--p5" tabindex="0"><g class="sub sub--p5"><use href="#sub-purple-motif"/></g><circle class="sub-ring" cx="0" cy="0" r="1.18"/></g>
+      </svg>
+    </div>
+    <div class="app__content">
+      <div class="intro">
+        <div class="intro__era">
+          <div class="intro__year">2010</div>
+          <div class="intro__meta">
+            <p class="intro__meta-lead">late 2000s</p>
+            <p>Single Global Focus on Sustainability</p>
+            <p>Customer Demand for Operational Efficiency</p>
+          </div>
+        </div>
+
+        <h1 class="intro__title">Wipro<br />Eco Energy</h1>
+
+        <p class="intro__body">Wipro launched EcoEnergy as a sustainability
+          services business that combined energy analytics, consulting, and
+          managed services. This early focus on energy management positioned
+          Wipro as a thought leader in green IT.</p>
+
+        <div class="intro__pitch">
+          <p class="intro__tagline">Smart Energy. Smarter Buildings.</p>
+          <p class="intro__note">Live data, sensors, and innovation are helping
+            businesses save energy and protect the planet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="bubbles.js" defer></script>
+  <script src="edit.js" defer></script>
+</body>
+</html>

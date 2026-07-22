@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>measure</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="host"></div>
+  <pre id="out"></pre>
+  <script>
+  (async () => {
+    const html = await (await fetch("index.html")).text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    document.getElementById("host").replaceWith(doc.querySelector(".app"));
+    // let fonts + images settle
+    await document.fonts.ready;
+    await new Promise((r) => setTimeout(r, 600));
+
+    const app = document.querySelector(".app");
+    const A = app.getBoundingClientRect();
+    const pct = (r) => ({
+      x: ((r.left - A.left) / A.width) * 100,
+      y: ((r.top - A.top) / A.height) * 100,
+      w: (r.width / A.width) * 100,
+      h: (r.height / A.height) * 100,
+    });
+
+    const SAMPLES = 14;
+    const anims = document.getAnimations();
+    const shots = [];
+    for (let s = 0; s < SAMPLES; s++) {
+      const f = s / SAMPLES;
+      for (const a of anims) {
+        try {
+          a.pause();
+          const d = a.effect.getComputedTiming().duration;
+          a.currentTime = f * d;
+        } catch (e) {}
+      }
+      // force layout flush
+      app.getBoundingClientRect();
+      const shot = { f, heads: {}, stems: {}, subs: {} };
+      for (const g of ["green", "purple"]) {
+        shot.heads[g] = pct(
+          document.querySelector(`.branch--${g} .branch__head`).getBoundingClientRect()
+        );
+        shot.stems[g] = pct(
+          document.querySelector(`.branch--${g} .branch__stem`).getBoundingClientRect()
+        );
+      }
+      for (const el of document.querySelectorAll(".sub-slot")) {
+        const id = [...el.classList].find((c) => c.startsWith("sub-slot--")).slice(10);
+        shot.subs[id] = pct(el.getBoundingClientRect());
+      }
+      shots.push(shot);
+    }
+
+    // text: per visual line, via ranges over text nodes
+    const lines = [];
+    const walker = document.createTreeWalker(
+      document.querySelector(".app__content"),
+      NodeFilter.SHOW_TEXT
+    );
+    let n;
+    while ((n = walker.nextNode())) {
+      if (!n.nodeValue.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      for (const r of range.getClientRects()) {
+        if (r.width < 1 || r.height < 1) continue;
+        lines.push(pct(r));
+      }
+    }
+
+    document.getElementById("out").textContent =
+      "@@" + JSON.stringify({ app: { w: A.width, h: A.height }, shots, lines }) + "@@";
+  })();
+  </script>
+</body>
+</html>

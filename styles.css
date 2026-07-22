@@ -1,0 +1,784 @@
+/* Design resolution: 1080 x 2400 (9:20 portrait) */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+/* Fixed 9:20 app container, centered on larger screens */
+.app {
+  position: relative;
+  aspect-ratio: 9 / 20;
+  width: min(100vw, calc(100vh * 9 / 20));
+  height: min(100vh, calc(100vw * 20 / 9));
+  max-width: 1080px;
+  max-height: 2400px;
+  overflow: hidden;
+
+  background-image: url("9_20.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Dandelion branches: above the background, behind all UI */
+.branch {
+  position: absolute;
+  z-index: 1;
+  height: auto; /* preserve the original artwork proportions */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Green: head + stem composed as one branch. The container keeps the 524 x 1285
+   box the branch occupied before, so its size and position are unchanged. */
+.branch--green {
+  left: 1%;
+  bottom: -6%;
+  width: 49.6%;
+  aspect-ratio: 524 / 1285;
+}
+
+/* Each branch is one head + one stem; width drives the size so proportions stay intact. */
+.branch > img {
+  position: absolute;
+  height: auto;
+}
+
+.branch__head {
+  z-index: 1; /* the head always covers the top of its stem */
+}
+
+/* Green stem: its top tip (95% across its own width) meets the head centre at
+   71.85%, tucked up behind the head's opaque core so the joint is seamless. */
+.branch--green .branch__stem {
+  left: 23%;
+  top: 28.08%;
+  width: 51.4%;
+}
+
+/* Green head: centred on 71.85% / 11.28% of the branch box. left/top are
+   derived from the width so that centre stays put when the width changes. */
+.branch--green .branch__head {
+  left: 52.43%;
+  top: 13.76%;
+  width: 39.2%;
+}
+
+/* Purple: the container is the stem box, sized so the stem runs from under the
+   head down to the very bottom edge of the screen. Head stays at ~74% / ~47%. */
+.branch--purple {
+  left: 38%;
+  bottom: 0;
+  width: 40.5%;
+  aspect-ratio: 166 / 457;
+}
+
+.branch--purple .branch__stem {
+  left: 0;
+  top: 9.45%;
+  width: 100%;
+}
+
+/* Purple head: held at 74% / 47.4% of the screen. The stem was shifted right to
+   clear the green stem, so this offset pulls the head back to where it was; the
+   stem's tip still meets it at 48% of the head radius, inside its opaque core. */
+.branch--purple .branch__head {
+  left: 65.89%;
+  top: -4.38%;
+  width: 49.2%;
+}
+
+/* ---------------------------------------------------------------------------
+   Sub-branches. The layer is pinned exactly over its main head and uses a
+   "0 0 100 100" viewBox, so 100 units == the head's diameter and the head
+   centre is (50,50) -- every sub is then positioned relative to the head it
+   belongs to. Living inside .branch means they inherit the sway and rise, so
+   they travel with their dandelion instead of drifting against it.
+--------------------------------------------------------------------------- */
+.subs {
+  position: absolute;
+  overflow: visible; /* subs sit outside the head's own box */
+  z-index: 2;        /* above the head, still below .app__content */
+  pointer-events: none;
+}
+
+/* These must track .branch__head exactly -- the layer *is* the head's box, which
+   is what makes "100 units == the head's diameter" true. */
+.branch--green .subs {
+  left: 52.43%;
+  top: 13.76%;
+  width: 39.2%;
+  aspect-ratio: 1;
+}
+
+.branch--purple .subs {
+  left: 65.89%;
+  top: -4.38%;
+  width: 49.2%;
+  aspect-ratio: 1;
+}
+
+/* --- Sub-branch placement -------------------------------------------------
+   Tune these by hand, or drag in edit mode (append ?edit to the URL) and copy
+   the result back here.
+
+   All three numbers are in head-diameter units: the head spans 0..100 with its
+   centre at (50,50), so they stay correct at every screen size.
+     --*-left / --*-top : centre of the sub
+     --*-size           : its radius (16 == 32% of the head's diameter)
+   Distances from (50,50) of 64 (green) and 63 (purple) sit just inside the
+   head's rim, which is what keeps each sub visually attached.
+-------------------------------------------------------------------------- */
+/* Your dragged arrangement, with the angular steps and the radial distance
+   evened out: same order, same arc tilt, no rearranging.
+   green  -- 4 across an arc centred on 102.3deg, even 39.98deg steps
+   purple -- 5 across an arc centred on  64.2deg, even 42.11deg steps
+
+   Every sub sits clear of its circle rather than touching it. Note the units
+   are relative to the head, so when the circle was reduced these numbers were
+   re-scaled to hold the sub-branches at the same absolute size and the same
+   gap -- only the circle got smaller, not the cluster around it. */
+.branch--green .subs {
+  --g3-left: -24.37; --g3-top:  26.15;  --g3-size: 23.94; /* arc, far left    */
+  --g1-left:   8.32; --g1-top: -16.05;  --g1-size: 23.94; /* arc, upper-left  */
+  --g2-left:  60.51; --g2-top: -27.39;  --g2-size: 23.94; /* arc, top         */
+  --g4-left: 107.78; --g4-top:  -2.55;  --g4-size: 23.94; /* arc, upper-right */
+}
+
+.branch--purple .subs {
+  --p4-left: -19.25; --p4-top:  14.09;  --p4-size: 22.72; /* arc, far left    */
+  --p1-left:  22.14; --p1-top: -22.87;  --p1-size: 22.72; /* arc, upper-left  */
+  --p2-left:  77.62; --p2-top: -22.96;  --p2-size: 22.72; /* arc, top         */
+  --p3-left: 119.14; --p3-top:  13.86;  --p3-size: 22.72; /* arc, upper-right */
+  --p5-left: 125.67; --p5-top:  68.96;  --p5-size: 22.72; /* arc, lower-right */
+}
+
+.sub-slot--g1 { transform: translate(calc(var(--g1-left) * 1px), calc(var(--g1-top) * 1px)) scale(var(--g1-size)); }
+.sub-slot--g2 { transform: translate(calc(var(--g2-left) * 1px), calc(var(--g2-top) * 1px)) scale(var(--g2-size)); }
+.sub-slot--g3 { transform: translate(calc(var(--g3-left) * 1px), calc(var(--g3-top) * 1px)) scale(var(--g3-size)); }
+.sub-slot--g4 { transform: translate(calc(var(--g4-left) * 1px), calc(var(--g4-top) * 1px)) scale(var(--g4-size)); }
+.sub-slot--p1 { transform: translate(calc(var(--p1-left) * 1px), calc(var(--p1-top) * 1px)) scale(var(--p1-size)); }
+.sub-slot--p2 { transform: translate(calc(var(--p2-left) * 1px), calc(var(--p2-top) * 1px)) scale(var(--p2-size)); }
+.sub-slot--p3 { transform: translate(calc(var(--p3-left) * 1px), calc(var(--p3-top) * 1px)) scale(var(--p3-size)); }
+.sub-slot--p4 { transform: translate(calc(var(--p4-left) * 1px), calc(var(--p4-top) * 1px)) scale(var(--p4-size)); }
+.sub-slot--p5 { transform: translate(calc(var(--p5-left) * 1px), calc(var(--p5-top) * 1px)) scale(var(--p5-size)); }
+
+/* The selection ring is never rendered outside edit mode. */
+.sub-ring {
+  display: none;
+  fill: none;
+}
+
+/* --- Edit mode ------------------------------------------------------------
+   Inert unless <body> carries .is-editing, so the normal experience is
+   untouched: no hit targets, no cursors, no outlines.
+-------------------------------------------------------------------------- */
+
+/* .app__content is a full-bleed transparent layer at z-index 2, above the
+   branches -- so it eats every click aimed at a sub. Stand it down while
+   editing; outside edit mode it keeps its normal behaviour for future UI. */
+.is-editing .app__content {
+  pointer-events: none;
+}
+
+.is-editing .subs {
+  pointer-events: none; /* the layer stays inert... */
+}
+
+/* Hold the head group at full bloom while editing. The editor maps pointer
+   position through the layer's rendered box, so a mid-breath scale would put
+   dropped positions a few percent out. */
+.is-editing .branch__head,
+.is-editing .subs {
+  animation: none;
+  scale: none;
+}
+
+.is-editing .sub-slot {
+  pointer-events: all; /* ...only the puffs themselves are grabbable */
+  cursor: grab;
+}
+
+.is-editing .sub-slot:focus {
+  outline: none; /* the drawn ring below is the focus indicator */
+}
+
+/* Enough feedback to see what you have hold of, without restyling the art. */
+.is-editing .sub-slot:hover .sub {
+  filter: brightness(1.12);
+}
+
+.is-editing .sub-slot--selected {
+  cursor: grabbing;
+}
+
+.is-editing .sub-slot--selected .sub-ring {
+  display: inline;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke; /* 2px ring whatever the slot's scale */
+  paint-order: stroke;
+}
+
+.is-editing .sub-slot--selected .sub {
+  filter: brightness(1.18);
+}
+
+.edit-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(12, 26, 34, 0.82);
+  color: #eaf6f7;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  backdrop-filter: blur(6px);
+}
+
+.edit-bar button {
+  font: inherit;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.edit-bar button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.edit-bar output {
+  opacity: 0.75;
+}
+
+/* ---------------------------------------------------------------------------
+   Idle motion -- anchored stem.
+
+   Every transform pivots on `transform-origin`, set to the exact point where
+   that branch's own stem meets the bottom of the screen. So the tail end is
+   welded in place and the whole branch -- stem and head together -- bends and
+   stretches away from it, the way a real stem moves in wind.
+
+   Three cycles per branch, composed via the individual transform properties
+   (`rotate` and `scale` animate separately and multiply, so no nesting):
+
+     rotate  -- the sway, left/right
+     scale   -- the rise, head up/down. This is scaleY about the anchor rather
+                than a translate, because a translate would drag the tail off
+                the bottom edge. Stretching from the anchor keeps it pinned.
+     head    -- a small secondary drift, so the head is not perfectly rigid
+                on the stem.
+
+   The rise cycles share a period and are authored in opposition: green is
+   rising while purple is sinking. Their waveforms are shaped differently and
+   the sway/drift cycles run at unrelated periods (19/14s, 25/17s), so the pair
+   never looks mirrored and the combined pose does not repeat for minutes.
+--------------------------------------------------------------------------- */
+.branch {
+  will-change: rotate, scale;
+}
+
+/* Green's box hangs 6% below the screen, so its anchor is the point where the
+   stem crosses the visible bottom edge -- not the bottom of the box. */
+/* The branch itself only ever rotates. Rotation cannot deform a circle, so the
+   heads stay perfectly round no matter how far it sways. */
+.branch--green {
+  transform-origin: 24.6% 89%;
+  animation: sway-green 11s ease-in-out -4s infinite;
+}
+
+.branch--purple {
+  transform-origin: 5.8% 100%; /* where the purple stem meets the bottom */
+  animation: sway-purple 13.5s ease-in-out -7s infinite;
+}
+
+/* --- the rise, split in two ------------------------------------------------
+   The vertical stretch that bows the stem now runs on the stem alone, about
+   the point where it meets the bottom edge, so the tail stays pinned. A stem
+   is a thin curve -- stretching it along its own length reads as bending, and
+   there is no circle to deform.
+
+   The head group does not scale with it. It rides the same cycle as a pure
+   translate, so the flower travels exactly as before while staying round.
+-------------------------------------------------------------------------- */
+.branch--green .branch__stem {
+  transform-origin: 3.11% 79.1%; /* the anchor, in the stem box's own terms */
+  animation: rise-green 12.5s ease-in-out infinite;
+}
+
+.branch--purple .branch__stem {
+  transform-origin: 5.8% 100%;
+  animation: rise-purple 12.5s ease-in-out infinite;
+}
+
+/* The secondary drift runs slower than the rise it sits on top of. Faster than
+   that and its direction changes fight the rise, which reads as fidgeting
+   rather than drifting. */
+.branch--green .branch__head {
+  animation: float-green 16s ease-in-out -6s infinite;
+}
+
+.branch--purple .branch__head {
+  animation: float-purple 19.5s ease-in-out -13s infinite;
+}
+
+/* --- Bloom -----------------------------------------------------------------
+   The head group breathes: the circle eases closed and opens again, and its
+   sub-branches draw in and spread with it.
+
+   No wrapper element is needed. .branch__head and .subs are pinned to the same
+   box, so scaling each about its own centre is identical to scaling one group
+   about the head's centre -- and it leaves the DOM (and the edit system) alone.
+
+   This rides on the `scale` property while the head's drift keeps `transform`,
+   so the two never overwrite each other. The stem is a sibling and is left out
+   of it on purpose: the branch keeps swaying and rising underneath, and the
+   anchor at the tail is untouched.
+
+   Periods are 18s and 21s -- a 6:7 ratio, so the two heads drift in and out of
+   alternation over roughly two minutes instead of trading off on a fixed beat.
+-------------------------------------------------------------------------- */
+.branch--green .branch__head,
+.branch--green .subs {
+  animation-name: bloom-green, lift-green;
+  animation-duration: 18s, 12.5s;
+  animation-delay: -3s, 0s;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.branch--purple .branch__head,
+.branch--purple .subs {
+  animation-name: bloom-purple, lift-purple;
+  animation-duration: 21s, 12.5s;
+  animation-delay: -12s, 0s;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* The heads already run their drift on `transform`; keep that and add the
+   bloom alongside it rather than replacing it. */
+.branch--green .branch__head {
+  animation-name: float-green, bloom-green, lift-green;
+  animation-duration: 16s, 18s, 12.5s;
+  animation-delay: -6s, -3s, 0s;
+  animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
+}
+
+.branch--purple .branch__head {
+  animation-name: float-purple, bloom-purple, lift-purple;
+  animation-duration: 19.5s, 21s, 12.5s;
+  animation-delay: -13s, -12s, 0s;
+  animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
+}
+
+/* Uneven stops and amplitudes keep the sway from feeling like a metronome.
+   The per-keyframe easing matters: easing every stop makes the branch pause at
+   each one, which reads as a pulse. Instead only the turning points ease, while
+   mid-travel stops stay linear, so the branch keeps flowing through them. */
+@keyframes sway-green {
+  0%   { rotate: -2.1deg;  animation-timing-function: ease-in; }
+  23%  { rotate: 0.45deg;  animation-timing-function: ease-out; }
+  41%  { rotate: 2.3deg;   animation-timing-function: ease-in; }
+  67%  { rotate: -0.5deg;  animation-timing-function: linear; }
+  84%  { rotate: -1.6deg;  animation-timing-function: ease-out; }
+  100% { rotate: -2.1deg; }
+}
+
+/* Purple swings a little less to the right than to the left: its sub-branch
+   cluster reaches ~99% of the screen width, so a symmetric swing would clip it
+   on the right edge. */
+@keyframes sway-purple {
+  0%   { rotate: 1.45deg;  animation-timing-function: ease-in; }
+  19%  { rotate: -0.5deg;  animation-timing-function: ease-out; }
+  44%  { rotate: -2deg;    animation-timing-function: ease-in; }
+  62%  { rotate: -0.35deg; animation-timing-function: linear; }
+  81%  { rotate: 0.85deg;  animation-timing-function: ease-out; }
+  100% { rotate: 1.45deg; }
+}
+
+/* The rise: scaleY about the anchor, so the head lifts and settles while the
+   tail stays pinned. Shortening the branch drops the flower and bows the stem;
+   stretching lifts it. That is also the flex -- the stem does the bending, the
+   anchor never moves.
+
+   The curves are deliberately bottom-weighted: each branch dwells near the low
+   end and springs up briefly, so the resting pose sits lower than before while
+   the upward travel is larger. Green peaks where purple troughs, so they stay
+   opposed, but the intermediate stops and amplitudes differ, so the pair never
+   reads as an exact mirror. */
+@keyframes rise-green {
+  0%   { scale: 1 0.972;  animation-timing-function: ease-in; }   /* rest, low */
+  25%  { scale: 1 0.988;  animation-timing-function: ease-out; }
+  45%  { scale: 1 1.040;  animation-timing-function: ease-in; }   /* peak      */
+  66%  { scale: 1 0.998;  animation-timing-function: linear; }
+  85%  { scale: 1 0.976;  animation-timing-function: ease-out; }
+  100% { scale: 1 0.972; }
+}
+
+@keyframes rise-purple {
+  0%   { scale: 1 1.026;  animation-timing-function: ease-in; }   /* peak      */
+  21%  { scale: 1 0.990;  animation-timing-function: ease-out; }
+  44%  { scale: 1 0.970;  animation-timing-function: ease-in; }   /* rest, low */
+  64%  { scale: 1 0.984;  animation-timing-function: linear; }
+  84%  { scale: 1 1.012;  animation-timing-function: ease-out; }
+  100% { scale: 1 1.026; }
+}
+
+/* The head group's half of the rise: the same cycle, same stops, same easing,
+   expressed as a translate so nothing is scaled.
+
+   Each value is the distance the stem's stretch would have carried the head,
+   written as a percentage of the head's own height -- head lever / head height
+   x (scale - 1). Both lengths scale with the 9:20 box, so the ratio is fixed
+   and the motion stays responsive. Green's lever is 486%, purple's 587%. */
+@keyframes lift-green {
+  0%   { translate: 0 13.61%;  animation-timing-function: ease-in; }
+  25%  { translate: 0 5.83%;   animation-timing-function: ease-out; }
+  45%  { translate: 0 -19.45%; animation-timing-function: ease-in; }
+  66%  { translate: 0 0.97%;   animation-timing-function: linear; }
+  85%  { translate: 0 11.67%;  animation-timing-function: ease-out; }
+  100% { translate: 0 13.61%; }
+}
+
+@keyframes lift-purple {
+  0%   { translate: 0 -15.26%; animation-timing-function: ease-in; }
+  21%  { translate: 0 5.87%;   animation-timing-function: ease-out; }
+  44%  { translate: 0 17.60%;  animation-timing-function: ease-in; }
+  64%  { translate: 0 9.39%;   animation-timing-function: linear; }
+  84%  { translate: 0 -7.04%;  animation-timing-function: ease-out; }
+  100% { translate: 0 -15.26%; }
+}
+
+/* Secondary drift: a small orbit on the head alone, so it is not perfectly
+   rigid on its stem. Kept well under the rise amplitude -- it seasons the
+   motion rather than driving it. */
+@keyframes float-green {
+  0%   { transform: translate(0, 0); }
+  27%  { transform: translate(0.8%, -2.6%); }
+  53%  { transform: translate(-0.6%, -0.8%); }
+  78%  { transform: translate(0.4%, 1.8%); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes float-purple {
+  0%   { transform: translate(0, 0); }
+  31%  { transform: translate(-0.7%, 2.2%); }
+  58%  { transform: translate(0.5%, 0.4%); }
+  82%  { transform: translate(-0.35%, -1.7%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Bloom: accelerate out of full bloom, settle into the closed pose, ease open
+   again. Easing only at the turning points -- easing every stop would make the
+   head hesitate mid-breath, which is exactly the pulsing this must avoid. */
+@keyframes bloom-green {
+  0%   { scale: 1;     animation-timing-function: ease-in; }  /* open        */
+  24%  { scale: 0.968; animation-timing-function: ease-out; }
+  46%  { scale: 0.905; animation-timing-function: ease-in; }  /* closed      */
+  70%  { scale: 0.951; animation-timing-function: linear; }
+  88%  { scale: 0.991; animation-timing-function: ease-out; }
+  100% { scale: 1; }
+}
+
+@keyframes bloom-purple {
+  0%   { scale: 1;     animation-timing-function: ease-in; }  /* open        */
+  26%  { scale: 0.972; animation-timing-function: ease-out; }
+  48%  { scale: 0.925; animation-timing-function: ease-in; }  /* closed      */
+  72%  { scale: 0.963; animation-timing-function: linear; }
+  90%  { scale: 0.994; animation-timing-function: ease-out; }
+  100% { scale: 1; }
+}
+
+/* Each sub gets the same three-part motion -- drift, breathe, tilt -- but on its
+   own clock. The placement lives on the wrapping <g>, so these transforms are
+   free to be purely local: values are in units of the sub's own radius, which
+   makes one keyframe set work for every size. */
+.sub {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sub-drift 11s ease-in-out infinite;
+}
+
+.sub--g1 { animation-duration: 10.5s; animation-delay: -1.2s; }
+.sub--g2 { animation-duration: 13s;   animation-delay: -5.6s; }
+.sub--g3 { animation-duration: 11.5s; animation-delay: -8.1s; }
+.sub--g4 { animation-duration: 14.5s; animation-delay: -3.4s; }
+
+.sub--p1 { animation-duration: 12s;   animation-delay: -6.7s; }
+.sub--p2 { animation-duration: 14s;   animation-delay: -2.1s; }
+.sub--p3 { animation-duration: 10s;   animation-delay: -9.3s; }
+.sub--p4 { animation-duration: 13.5s; animation-delay: -4.8s; }
+.sub--p5 { animation-duration: 11.8s; animation-delay: -7.9s; }
+
+/* Float + pulse + sway in one track, so the three stay in step per sub.
+   Percentages resolve against each sub's own box (transform-box: fill-box), so
+   one keyframe set drives every sub at its own size. The scale swing is small
+   on purpose -- a puff that throbs reads as a button, not as a seed head. */
+@keyframes sub-drift {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    animation-timing-function: ease-in-out;
+  }
+  27% {
+    transform: translate(5%, -7%) scale(1.05) rotate(2.5deg);
+    animation-timing-function: ease-in-out;
+  }
+  54% {
+    transform: translate(-4%, 3%) scale(0.965) rotate(-1.5deg);
+    animation-timing-function: ease-in-out;
+  }
+  79% {
+    transform: translate(2.5%, 6%) scale(1.02) rotate(1deg);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sub {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .branch,
+  .branch .branch__stem,
+  .branch .branch__head,
+  .branch .subs {
+    animation: none;
+    rotate: none;
+    scale: none;
+    translate: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Ambient bubbles.
+
+   One layer sitting between the background and the dandelions, so the drift
+   reads as depth behind the subject and never competes with it. Every bubble
+   is driven by the same keyframes; all the variation comes from per-instance
+   custom properties set in bubbles.js -- position, size, opacity, drift
+   vector, rotation, duration and a negative delay so the field is already
+   in motion on the first frame rather than all starting together.
+--------------------------------------------------------------------------- */
+.bubbles {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* above the background, below .branch (1) and .app__content (2) */
+  overflow: hidden;
+  pointer-events: none;
+  /* Makes cqw available to the bubbles. Their drift has to be measured against
+     the scene, not against themselves: a percentage translate resolves against
+     the element's own box, which would move a 40px bubble by a couple of px. */
+  container-type: size;
+}
+
+/* The PNGs are drawn exactly as authored -- no filter, no tint, no opacity
+   multiplier. Only the drift cycle's fade touches their opacity. */
+.bubble {
+  position: absolute;
+  left: var(--bx);
+  top: var(--by);
+  width: var(--bs);
+  height: auto;
+  margin: calc(var(--bs) / -2) 0 0 calc(var(--bs) / -2); /* --bx/--by are its centre */
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: bubble-drift;
+  animation-duration: var(--bdur);
+  animation-delay: var(--bdelay);
+  animation-iteration-count: infinite;
+  /* eased both ways, so the one-second ramps arrive and leave softly instead
+     of switching on and off at a constant rate */
+  animation-timing-function: ease-in-out;
+}
+
+/* Fades in, wanders along a slightly bowed path, fades out. The midpoint is
+   deliberately off the straight line between start and end so no bubble
+   travels in a dead-straight line. */
+@keyframes bubble-drift {
+  /* One turn of the pattern cycle set in bubbles.js (3 patterns x 5s = 15s).
+     A bubble is up for the first 30% of it -- 1.8s easing in, 1.05s held,
+     1.65s easing out -- then sits out the rest while the other two patterns
+     take their turns.
+
+     That 4.5s window has to stay shorter than one pattern's 5s turn (jitter
+     included). Overrun it and consecutive patterns are on screen together,
+     and since each pattern is only spaced against its own bubbles, that shows
+     up immediately as overlapping bubbles.
+
+     The drift completes inside the visible window and then holds, so the
+     movement is seen rather than spent while the bubble is transparent.
+
+     The end scale is deliberately close to 1: every bit of swell, like every
+     bit of drift, has to be paid for as clearance between neighbours. */
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.94) rotate(0deg);
+  }
+  12% {
+    opacity: 1; /* the asset's own alpha, untouched */
+  }
+  19% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+    transform: translate3d(var(--bdx), var(--bdy), 0) scale(1.06) rotate(var(--brot));
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--bdx), var(--bdy), 0) scale(1.06) rotate(var(--brot));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Intro copy.
+
+   Everything is sized in em off one root: .app__content's font-size is 1% of
+   the app's width, using the same min() the app itself is sized with. So 1em
+   == 1% of the scene, every size and margin below is a percentage in disguise,
+   and the whole block scales with the 9:20 box on any screen -- no fixed px.
+--------------------------------------------------------------------------- */
+.app__content {
+  font-size: calc(min(100vw, 100vh * 9 / 20) / 100);
+  font-family: Arial, Helvetica, "Helvetica Neue", sans-serif;
+}
+
+.intro {
+  position: absolute;
+  left: 7.2%;
+  top: 11.8%;
+  width: 86%;
+  pointer-events: none; /* copy is not interactive; never intercept a drag */
+  --intro-green: #22b24b;
+  --intro-navy: #16265f;
+}
+
+.intro p {
+  margin: 0;
+}
+
+/* --- era row: the year, a hairline, then the timeline notes --------------- */
+.intro__era {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 4.6em;
+}
+
+.intro__year {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg); /* reads bottom-to-top, as in the reference */
+  font-size: 7.4em;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--intro-green);
+}
+
+.intro__meta {
+  margin-left: 4.2em;
+  padding-left: 1.1em;
+  /* em here is relative to this rule's own 1.55em, and box-sizing is border-box
+     so the padding and rule come out of this width. 12.9em leaves ~17% of the
+     scene for the text itself, which wraps the two long notes onto two lines
+     as in the reference. */
+  max-width: 12.9em;
+  border-left: 0.16em solid var(--intro-green);
+  font-size: 1.55em;
+  line-height: 1.42;
+  color: var(--intro-green);
+}
+
+.intro__meta-lead {
+  margin-bottom: 0.9em !important;
+  font-size: 1.22em;
+  font-weight: 700;
+}
+
+.intro__meta p + p {
+  margin-top: 0.85em;
+}
+
+/* --- headline ------------------------------------------------------------ */
+.intro__title {
+  margin: 0 0 0.35em;
+  font-size: 4.9em;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.005em;
+  color: var(--intro-green);
+}
+
+/* --- body copy ----------------------------------------------------------- */
+.intro__body {
+  max-width: 66%;
+  margin-bottom: 0.15em !important;
+  font-size: 2.25em;
+  line-height: 1.45;
+  color: var(--intro-navy);
+}
+
+/* --- tagline sits left, the note beside it ------------------------------- */
+.intro__pitch {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.2%;
+}
+
+.intro__tagline {
+  flex: 0 0 38%;
+  font-size: 2.6em;
+  font-weight: 700;
+  line-height: 1.24;
+  color: var(--intro-navy);
+}
+
+.intro__note {
+  flex: 0 0 27%;
+  font-size: 1.75em;
+  line-height: 1.46;
+  color: var(--intro-navy);
+}
+
+/* Transparent layer above the background for future UI */
+.app__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+}

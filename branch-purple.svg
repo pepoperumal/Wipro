@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 802 1506"
+     width="802" height="1506" preserveAspectRatio="xMidYMid meet" fill="none">
+  <defs>
+    <linearGradient id="branch-purple-stem" gradientUnits="userSpaceOnUse" x1="658.6" y1="211" x2="24.4" y2="1505">
+      <stop offset="0.000" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.100" stop-color="#9C73FF" stop-opacity="0.999"/>
+      <stop offset="0.200" stop-color="#9C73FF" stop-opacity="0.999"/>
+      <stop offset="0.300" stop-color="#9C73FF" stop-opacity="0.999"/>
+      <stop offset="0.400" stop-color="#9C73FF" stop-opacity="0.999"/>
+      <stop offset="0.500" stop-color="#9C73FF" stop-opacity="0.999"/>
+      <stop offset="0.600" stop-color="#9C73FF" stop-opacity="0.820"/>
+      <stop offset="0.700" stop-color="#9C73FF" stop-opacity="0.579"/>
+      <stop offset="0.800" stop-color="#9C73FF" stop-opacity="0.361"/>
+      <stop offset="0.900" stop-color="#9C73FF" stop-opacity="0.199"/>
+      <stop offset="1.000" stop-color="#9C73FF" stop-opacity="0.200"/>
+    </linearGradient>
+    <radialGradient id="branch-purple-head" gradientUnits="userSpaceOnUse" cx="644.0" cy="156.0" r="158">
+      <stop offset="0.000" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.062" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.125" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.188" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.250" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.312" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.375" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.438" stop-color="#9C73FF" stop-opacity="1.000"/>
+      <stop offset="0.500" stop-color="#9E76FF" stop-opacity="0.984"/>
+      <stop offset="0.562" stop-color="#A781FF" stop-opacity="0.914"/>
+      <stop offset="0.625" stop-color="#AE8AFF" stop-opacity="0.839"/>
+      <stop offset="0.688" stop-color="#B596FF" stop-opacity="0.737"/>
+      <stop offset="0.750" stop-color="#C0ACFF" stop-opacity="0.643"/>
+      <stop offset="0.812" stop-color="#CFCAFF" stop-opacity="0.518"/>
+      <stop offset="0.875" stop-color="#D3CFFF" stop-opacity="0.294"/>
+      <stop offset="0.938" stop-color="#D2D9FF" stop-opacity="0.243"/>
+      <stop offset="1.000" stop-color="#D4D8FF" stop-opacity="0.000"/>
+    </radialGradient>
+  </defs>
+  <path d="M658.62 211.00 C657.05 232.57 654.24 297.27 649.20 340.40 C644.16 383.53 638.28 426.67 628.35 469.80 C618.43 512.93 606.21 556.07 589.64 599.20 C573.07 642.33 554.06 685.47 528.92 728.60 C503.78 771.73 473.11 814.87 438.79 858.00 C404.47 901.13 362.33 944.27 323.00 987.40 C283.67 1030.53 238.59 1073.67 202.79 1116.80 C166.99 1159.93 133.14 1203.07 108.19 1246.20 C83.24 1289.33 67.04 1332.47 53.08 1375.60 C39.11 1418.73 29.16 1483.43 24.38 1505.00" stroke="url(#branch-purple-stem)" stroke-width="19.3" stroke-linecap="round" fill="none"/>
+  <circle cx="644.0" cy="156.0" r="158" fill="url(#branch-purple-head)"/>
+  <g fill="#A792ED">
+    <circle cx="644.9" cy="16.2" r="4.07"/>
+    <circle cx="625.2" cy="17.3" r="4.03"/>
+    <circle cx="664.7" cy="17.7" r="4.07"/>
+    <circle cx="605.5" cy="21.5" r="4.07"/>
+    <circle cx="684.2" cy="22.3" r="4.03"/>
+    <circle cx="586.9" cy="28.1" r="4.07"/>
+    <circle cx="702.6" cy="29.4" r="4.07"/>
+    <circle cx="569.5" cy="37.5" r="4.07"/>
+    <circle cx="644.7" cy="36.4" r="3.29"/>
+    <circle cx="627.8" cy="37.4" r="3.34"/>
+    <circle cx="661.7" cy="37.9" r="3.34"/>
+    <circle cx="720.1" cy="39.0" r="3.99"/>
+    <circle cx="611.2" cy="40.9" r="3.29"/>
+    <circle cx="678.4" cy="41.5" r="3.24"/>
+    <circle cx="595.2" cy="46.6" r="3.34"/>
+    <circle cx="694.1" cy="47.6" r="3.29"/>
+    <circle cx="553.4" cy="49.4" r="4.07"/>
+    <circle cx="735.7" cy="51.1" r="4.07"/>
+    <circle cx="580.3" cy="54.6" r="3.29"/>
+    <circle cx="708.9" cy="55.9" r="3.34"/>
+    <circle cx="539.3" cy="63.3" r="4.07"/>
+    <circle cx="566.5" cy="64.5" r="3.19"/>
+    <circle cx="749.7" cy="65.3" r="4.07"/>
+    <circle cx="722.5" cy="66.4" r="3.24"/>
+    <circle cx="554.5" cy="76.5" r="3.19"/>
+    <circle cx="527.2" cy="78.8" r="4.07"/>
+    <circle cx="734.5" cy="78.5" r="3.19"/>
+    <circle cx="761.5" cy="81.4" r="4.03"/>
+    <circle cx="544.1" cy="90.0" r="3.39"/>
+    <circle cx="744.3" cy="92.1" r="3.24"/>
+    <circle cx="517.5" cy="96.5" r="4.07"/>
+    <circle cx="770.7" cy="98.7" r="4.07"/>
+    <circle cx="535.9" cy="104.9" r="3.34"/>
+    <circle cx="752.3" cy="107.1" r="3.24"/>
+    <circle cx="510.3" cy="114.7" r="4.07"/>
+    <circle cx="777.5" cy="117.5" r="4.07"/>
+    <circle cx="529.7" cy="120.7" r="3.24"/>
+    <circle cx="758.0" cy="123.0" r="3.43"/>
+    <circle cx="505.8" cy="134.2" r="4.07"/>
+    <circle cx="781.6" cy="136.8" r="4.11"/>
+    <circle cx="526.0" cy="137.2" r="3.24"/>
+    <circle cx="761.5" cy="139.5" r="3.19"/>
+    <circle cx="504.4" cy="154.0" r="4.15"/>
+    <circle cx="524.5" cy="154.3" r="3.29"/>
+    <circle cx="782.7" cy="156.7" r="4.07"/>
+    <circle cx="762.5" cy="156.5" r="3.19"/>
+    <circle cx="525.7" cy="171.1" r="3.24"/>
+    <circle cx="505.6" cy="173.6" r="4.15"/>
+    <circle cx="761.1" cy="173.5" r="3.19"/>
+    <circle cx="781.4" cy="176.6" r="4.07"/>
+    <circle cx="529.1" cy="187.8" r="3.29"/>
+    <circle cx="757.3" cy="190.0" r="3.19"/>
+    <circle cx="509.5" cy="193.4" r="4.11"/>
+    <circle cx="776.7" cy="195.9" r="4.07"/>
+    <circle cx="534.9" cy="203.8" r="3.29"/>
+    <circle cx="751.3" cy="205.9" r="3.24"/>
+    <circle cx="516.4" cy="212.0" r="4.15"/>
+    <circle cx="769.5" cy="214.5" r="4.07"/>
+    <circle cx="542.9" cy="218.7" r="3.24"/>
+    <circle cx="743.0" cy="220.7" r="3.19"/>
+    <circle cx="525.5" cy="229.5" r="4.07"/>
+    <circle cx="760.0" cy="231.7" r="4.07"/>
+    <circle cx="552.9" cy="232.4" r="3.29"/>
+    <circle cx="732.7" cy="234.2" r="3.19"/>
+    <circle cx="537.5" cy="245.5" r="4.07"/>
+    <circle cx="564.6" cy="244.5" r="3.24"/>
+    <circle cx="720.6" cy="246.1" r="3.14"/>
+    <circle cx="747.9" cy="247.7" r="4.07"/>
+    <circle cx="578.2" cy="254.7" r="3.19"/>
+    <circle cx="706.8" cy="256.1" r="3.29"/>
+    <circle cx="551.4" cy="259.6" r="4.15"/>
+    <circle cx="733.5" cy="261.5" r="4.07"/>
+    <circle cx="593.1" cy="263.2" r="3.29"/>
+    <circle cx="691.9" cy="264.2" r="3.29"/>
+    <circle cx="608.9" cy="269.2" r="3.29"/>
+    <circle cx="675.9" cy="269.8" r="3.29"/>
+    <circle cx="567.3" cy="271.7" r="4.07"/>
+    <circle cx="625.5" cy="272.9" r="3.19"/>
+    <circle cx="717.7" cy="273.4" r="4.11"/>
+    <circle cx="584.5" cy="281.5" r="4.07"/>
+    <circle cx="700.3" cy="282.6" r="4.11"/>
+    <circle cx="603.0" cy="288.6" r="4.18"/>
+    <circle cx="681.5" cy="289.5" r="4.07"/>
+    <circle cx="622.4" cy="293.0" r="4.15"/>
+  </g>
+</svg>
