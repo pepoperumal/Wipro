@@ -28,7 +28,7 @@
     </radialGradient>
   </defs>
   <circle cx="756.5" cy="756.5" r="757.0" fill="url(#head-green-glow)"/>
-  <g fill="#64BF8C">
+  <g fill="#8DCD9B">
     <circle cx="1232.3" cy="754.7" r="12.5"/>
     <circle cx="1226.9" cy="822.3" r="12.5"/>
     <circle cx="1211.8" cy="888.7" r="12.5"/>
@@ -74,7 +74,7 @@
     <circle cx="1214.3" cy="620.3" r="12.5"/>
     <circle cx="1228.1" cy="686.8" r="12.5"/>
   </g>
-  <g fill="#79C893">
+  <g fill="#8DCD9B">
     <circle cx="1329.3" cy="755.8" r="15.8"/>
     <circle cx="1322.6" cy="837.3" r="15.8"/>
     <circle cx="1304.4" cy="917.0" r="15.8"/>

@@ -6,6 +6,34 @@
   box-sizing: border-box;
 }
 
+/* Cabinet Grotesk, self-hosted from fonts/. Only the two weights the scene uses
+   are shipped: 400 for body copy, 700 for the year, headline and tagline.
+   font-display: swap paints the fallback immediately and swaps the real face in
+   on arrival, so the copy is never invisible. */
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("fonts/CabinetGrotesk-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("fonts/CabinetGrotesk-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* One type stack for the whole scene. Every place that draws text -- the intro
+   copy, the info-box label and the SVG circle labels -- reads this, so the face
+   is changed in one spot rather than three. The Arial chain stays behind it as
+   the fallback. */
+:root {
+  --font-sans: "Cabinet Grotesk", Arial, Helvetica, "Helvetica Neue", sans-serif;
+}
+
 html,
 body {
   height: 100%;
@@ -32,6 +60,163 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  /* Establishes a stacking context, which is what lets the z-index -1 background
+     layers below sit ABOVE this element's own background yet beneath every other
+     layer. Without it they would escape behind .app and never be seen. */
+  isolation: isolate;
+}
+
+/* ---------------------------------------------------------------------------
+   Ambient background motion.
+
+   The scene PNG is a flat image, so its colours cannot be moved from inside it.
+   Instead two layers sit between .app's background and everything else:
+
+     .bg-base -- the same PNG on its own transformable layer, oversized by 6%
+                 and drifting/scaling very slowly. Because it is a transform on
+                 a composited layer (not background-position), it is smooth and
+                 costs no layout. The 6% overhang is the safety margin: the
+                 drift never travels far enough to expose an edge.
+
+     .bg-wash -- four heavily blurred blobs in the PNG's own sampled palette
+                 (periwinkle up top, pale cyan through the middle, teal at the
+                 bottom), each drifting and breathing on its own long, unrelated
+                 period. This is what actually reads as "the colours moving".
+
+   Every period is long (40-70s) and every track eases between its turning
+   points, so nothing ever pulses or snaps -- at any instant the movement is
+   below the threshold you would consciously track, which is what makes it feel
+   calm rather than animated. Both layers are inert to input.
+--------------------------------------------------------------------------- */
+.bg-base,
+.bg-wash {
+  position: absolute;
+  z-index: -1; /* above .app's own background, below bubbles (0) */
+  pointer-events: none;
+}
+
+.bg-base {
+  /* -3% on every side == 106% of the box, so there is always image beyond the
+     frame for the drift to move into. */
+  inset: -3%;
+  background-image: url("9_20.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform;
+  animation: bg-base-drift 64s ease-in-out -12s infinite;
+}
+
+.bg-wash {
+  inset: 0;
+  /* Same trick .app__content uses: 1em == 1% of the scene's width, so the blur
+     radius below is really a percentage and scales with the 9:20 box. */
+  font-size: calc(min(100vw, 100vh * 9 / 20) / 100);
+}
+
+.bg-blob {
+  position: absolute;
+  display: block;
+  aspect-ratio: 1; /* width alone drives the size, so every blob stays round */
+  border-radius: 50%;
+  will-change: transform, opacity;
+  /* A wide, static blur. Blurring is the expensive part, so it is never
+     animated -- only the cheap composited transform/opacity move. */
+  filter: blur(9em);
+}
+
+/* Colours are sampled straight out of 9_20.png, and each blob is parked over
+   the band it was taken from -- so the wash deepens the scene's own gradient
+   rather than tinting it with anything foreign. The fully transparent stop is
+   written as the same rgb with alpha 0 (not `transparent`) so the fade never
+   drifts through grey. */
+.bg-blob--1 {
+  left: -12%;
+  top: 4%;
+  width: 62%;
+  background: radial-gradient(circle at 50% 50%, rgba(143, 176, 254, 0.78) 0%, rgba(143, 176, 254, 0) 70%);
+  animation: bg-blob-1 47s ease-in-out -7s infinite;
+}
+
+.bg-blob--2 {
+  left: 46%;
+  top: 16%;
+  width: 58%;
+  background: radial-gradient(circle at 50% 50%, rgba(201, 221, 251, 0.82) 0%, rgba(201, 221, 251, 0) 70%);
+  animation: bg-blob-2 59s ease-in-out -23s infinite;
+}
+
+.bg-blob--3 {
+  left: -6%;
+  top: 52%;
+  width: 66%;
+  background: radial-gradient(circle at 50% 50%, rgba(116, 202, 212, 0.72) 0%, rgba(116, 202, 212, 0) 70%);
+  animation: bg-blob-3 68s ease-in-out -31s infinite;
+}
+
+.bg-blob--4 {
+  left: 44%;
+  top: 70%;
+  width: 60%;
+  background: radial-gradient(circle at 50% 50%, rgba(63, 183, 194, 0.72) 0%, rgba(63, 183, 194, 0) 70%);
+  animation: bg-blob-4 53s ease-in-out -16s infinite;
+}
+
+/* The base's travel is deliberately tiny -- a few tenths of a percent per
+   second. It is meant to be felt rather than seen. */
+@keyframes bg-base-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(-1.9%, 1.5%, 0) scale(1.035); }
+  66%  { transform: translate3d(1.6%, -1.2%, 0) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Each blob wanders a short way and breathes a little. Four stops rather than
+   two, so a blob traces a slow loop instead of sliding along one line and
+   reversing -- a reversal is the one thing the eye does notice. Opacity moves
+   with it so a blob softens as it drifts, which keeps the field from reading as
+   four discrete shapes moving about. */
+@keyframes bg-blob-1 {
+  0%   { transform: translate3d(0, 0, 0) scale(1);        opacity: 0.8; }
+  25%  { transform: translate3d(11%, 7%, 0) scale(1.18);  opacity: 1; }
+  50%  { transform: translate3d(5%, 16%, 0) scale(0.9);   opacity: 0.72; }
+  75%  { transform: translate3d(-8%, 7%, 0) scale(1.1);   opacity: 0.95; }
+  100% { transform: translate3d(0, 0, 0) scale(1);        opacity: 0.8; }
+}
+
+@keyframes bg-blob-2 {
+  0%   { transform: translate3d(0, 0, 0) scale(1);         opacity: 0.88; }
+  25%  { transform: translate3d(-13%, 9%, 0) scale(1.15);  opacity: 0.68; }
+  50%  { transform: translate3d(-6%, -11%, 0) scale(0.88); opacity: 1; }
+  75%  { transform: translate3d(9%, -4%, 0) scale(1.08);   opacity: 0.82; }
+  100% { transform: translate3d(0, 0, 0) scale(1);         opacity: 0.88; }
+}
+
+@keyframes bg-blob-3 {
+  0%   { transform: translate3d(0, 0, 0) scale(1);        opacity: 0.74; }
+  25%  { transform: translate3d(9%, -9%, 0) scale(1.16);  opacity: 1; }
+  50%  { transform: translate3d(14%, 6%, 0) scale(0.9);   opacity: 0.82; }
+  75%  { transform: translate3d(4%, 11%, 0) scale(1.11);  opacity: 0.94; }
+  100% { transform: translate3d(0, 0, 0) scale(1);        opacity: 0.74; }
+}
+
+@keyframes bg-blob-4 {
+  0%   { transform: translate3d(0, 0, 0) scale(1);         opacity: 0.95; }
+  25%  { transform: translate3d(-11%, -7%, 0) scale(1.13); opacity: 0.72; }
+  50%  { transform: translate3d(-16%, 4%, 0) scale(0.9);   opacity: 1; }
+  75%  { transform: translate3d(-4%, 12%, 0) scale(1.06);  opacity: 0.8; }
+  100% { transform: translate3d(0, 0, 0) scale(1);         opacity: 0.95; }
+}
+
+/* Reduced motion: the wash stays, the movement does not. Holding the layers at
+   their rest pose keeps the colouring identical to frame one. */
+@media (prefers-reduced-motion: reduce) {
+  .bg-base,
+  .bg-blob {
+    animation: none;
+    transform: none;
+  }
 }
 
 /* Dandelion branches: above the background, behind all UI */
@@ -41,6 +226,18 @@ body {
   height: auto; /* preserve the original artwork proportions */
   pointer-events: none;
   user-select: none;
+  /* Only opacity is transitioned; the sway/rise/bloom animations are untouched.
+     Living on .branch (not the hide class) means a later fade-in is smooth too. */
+  transition: opacity 0.8s ease-in-out;
+}
+
+/* Reusable hide state, shared by the dandelions and the bubble fields: fades an
+   element to transparent and stops it catching input, without removing it from
+   the DOM. Remove the class to restore. The 0.8s transition lives on each target
+   (.branch, .bubbles), so fading back in is smooth too. */
+.is-faded {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Green: head + stem composed as one branch. The container keeps the 524 x 1285
@@ -56,6 +253,23 @@ body {
 .branch > img {
   position: absolute;
   height: auto;
+}
+
+/* Both stems are inline <svg> rather than <img> (so their paths can bend);
+   give them the same positioning the <img> layers get from the rule above.
+
+   NOTE for anyone raising the wave amplitude: each tail is authored hugging the
+   edge of its own viewBox -- the green path sits at x~96 of a 101-unit box, the
+   purple at x~147 of a 166-unit box -- so an outward bend crosses the viewport
+   edge and the default SVG clip cuts that stretch of tail clean off, which reads
+   as the tail being squeezed / going out of shape. The purple snake wave now dips
+   the path to negative x partway down (see stem-snake-purple), so it WAS being
+   clipped; `overflow: visible` turns the clip off (same as .subs uses) and the
+   tail keeps its full authored shape. */
+.branch__stem {
+  position: absolute;
+  height: auto;
+  overflow: visible; /* never clip the tail's bend at the viewBox edge */
 }
 
 .branch__head {
@@ -114,6 +328,11 @@ body {
   overflow: visible; /* subs sit outside the head's own box */
   z-index: 2;        /* above the head, still below .app__content */
   pointer-events: none;
+  /* On the state-2 -> state-1 exit, labels.js fades ONLY this layer (the puffs +
+     labels) via .is-faded, leaving the main head + stem untouched. The 0.8s here
+     is what makes that a smooth fade; it never runs otherwise (the bloom and the
+     drill drive the sub-slots' own opacity, never this layer's). */
+  transition: opacity 0.8s ease-in-out;
 }
 
 /* These must track .branch__head exactly -- the layer *is* the head's box, which
@@ -148,10 +367,13 @@ body {
    green  -- 4 across an arc centred on 102.3deg, even 39.98deg steps
    purple -- 5 across an arc centred on  64.2deg, even 42.11deg steps
 
-   Every sub sits clear of its circle rather than touching it. Note the units
-   are relative to the head, so when the circle was reduced these numbers were
-   re-scaled to hold the sub-branches at the same absolute size and the same
-   gap -- only the circle got smaller, not the cluster around it. */
+   The sub-branches sit on an arc centred on the head centre (50,50 in this
+   100-unit box), on a radius of ~78 units. That radius is deliberate: the head
+   carries a soft GLOW halo that reaches to the edge of its box (~50 units), so
+   the arc has to sit just OUTSIDE that halo or the puffs overlap the circle's
+   glow. Pulling them nearer the solid ball is not possible without also shrinking
+   the head's glow -- so the ~78 radius clears the halo cleanly. Units are relative
+   to the head, so this holds at every size. */
 .branch--green .subs {
   --g3-left: -24.37; --g3-top:  26.15;  --g3-size: 23.94; /* arc, far left    */
   --g1-left:   8.32; --g1-top: -16.05;  --g1-size: 23.94; /* arc, upper-left  */
@@ -183,14 +405,61 @@ body {
   fill: none;
 }
 
+/* --- Drill-down click targets ---------------------------------------------
+   Every green AND purple sub-branch is a click target. `all` makes the whole
+   puff clickable (not just its painted dots), and the cursor advertises it. This
+   sits before the edit-mode block on purpose, so the editor's `grab` cursor
+   still wins while editing. drilldown.js runs the transition; the pointer
+   plumbing lives here.
+-------------------------------------------------------------------------- */
+.branch--green .sub-slot,
+.branch--purple .sub-slot {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+/* ...but never on a dandelion that has been faded out. `pointer-events` is not
+   blocked by an ancestor: a descendant that sets `all` stays hit-testable even
+   though .is-faded set `none` above it. Without this, the puffs of the plant
+   that faded away during a drill are still sitting there at opacity 0 catching
+   clicks -- so a press on apparently empty background would drill into the
+   dandelion that is not even on screen. Only the visible plant is pressable. */
+.is-faded .sub-slot {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* No click/selection chrome whatsoever: the slots carry tabindex, so a click or
+   tab would otherwise draw a browser focus ring, and a tap would flash the
+   mobile highlight overlay. Suppress every such indicator -- the fade is the
+   only feedback. (Edit mode still shows its own drawn ring for the selected
+   slot; that is a <circle>, not an outline, so it is unaffected.) */
+.sub-slot,
+.sub-slot:focus,
+.sub-slot:focus-visible,
+.sub-slot:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* .app__content is a full-bleed z-index-2 layer above the branches, so it would
+   otherwise swallow clicks meant for a sub. Its only content, .intro, is already
+   pointer-events: none, so we let the whole layer pass clicks through to the
+   subs below. (Any future interactive UI in here can opt back in with
+   pointer-events: auto on itself.) */
+.app__content {
+  pointer-events: none;
+}
+
 /* --- Edit mode ------------------------------------------------------------
    Inert unless <body> carries .is-editing, so the normal experience is
    untouched: no hit targets, no cursors, no outlines.
 -------------------------------------------------------------------------- */
 
-/* .app__content is a full-bleed transparent layer at z-index 2, above the
-   branches -- so it eats every click aimed at a sub. Stand it down while
-   editing; outside edit mode it keeps its normal behaviour for future UI. */
+/* .app__content already passes clicks through in every mode (see the
+   click-to-dismiss block above); this keeps that explicit for edit mode. */
 .is-editing .app__content {
   pointer-events: none;
 }
@@ -203,7 +472,8 @@ body {
    position through the layer's rendered box, so a mid-breath scale would put
    dropped positions a few percent out. */
 .is-editing .branch__head,
-.is-editing .subs {
+.is-editing .subs,
+.is-editing .sub use {
   animation: none;
   scale: none;
 }
@@ -292,10 +562,11 @@ body {
      head    -- a small secondary drift, so the head is not perfectly rigid
                 on the stem.
 
-   The rise cycles share a period and are authored in opposition: green is
-   rising while purple is sinking. Their waveforms are shaped differently and
-   the sway/drift cycles run at unrelated periods (19/14s, 25/17s), so the pair
-   never looks mirrored and the combined pose does not repeat for minutes.
+   The rise cycles share a 15s period and are authored in opposition: green is
+   rising while purple is sinking. The sway and drift cycles run at unrelated
+   periods -- green 17/19s, purple 20/23s -- and every track eases smoothly
+   between its two turning points, so the pair never looks mirrored, the pose
+   does not repeat for minutes, and no cycle has a sharp turn in it.
 --------------------------------------------------------------------------- */
 .branch {
   will-change: rotate, scale;
@@ -303,16 +574,50 @@ body {
 
 /* Green's box hangs 6% below the screen, so its anchor is the point where the
    stem crosses the visible bottom edge -- not the bottom of the box. */
-/* The branch itself only ever rotates. Rotation cannot deform a circle, so the
-   heads stay perfectly round no matter how far it sways. */
+/* The branch rotates (sway) and breathes (a whole-plant scale). Both are
+   UNIFORM, so the heads stay perfectly round no matter where in the cycle they
+   are caught, and both pivot on the same anchor at the stem's foot -- the plant
+   swells and settles in place rather than sliding.
+
+   The breath is deliberately tiny: ~1.5% peak to peak, over a period longer
+   than the sway's, so the two never line up into a single obvious pulse. It is
+   the slowest thing on screen, which is what keeps it reading as "alive"
+   instead of "animated". */
 .branch--green {
   transform-origin: 24.6% 89%;
-  animation: sway-green 11s ease-in-out -4s infinite;
+  animation-name: sway-green, breathe-green;
+  animation-duration: 17s, 19s;
+  animation-delay: -4s, -6s;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite;
 }
 
 .branch--purple {
   transform-origin: 5.8% 100%; /* where the purple stem meets the bottom */
-  animation: sway-purple 13.5s ease-in-out -7s infinite;
+  animation-name: sway-purple, breathe-purple;
+  animation-duration: 20s, 23s;
+  animation-delay: -7s, -14s;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* The breath is a FIRST-STATE motion only, and it drops out wherever `scale` on
+   the branch belongs to something else:
+     .is-centered -- drilldown.js grows the spawned plant by transitioning the
+                     branch's inline `scale`, and a running animation on the
+                     same property would simply overwrite it;
+     .is-editing  -- the editor maps pointer position through the layer's
+                     rendered box, so a mid-breath scale would drop a dragged
+                     sub a percent or two off where it was released.
+   Only the breath is dropped; the sway keeps running in both. */
+.branch--green.is-centered,
+.is-editing .branch--green {
+  animation-name: sway-green;
+}
+
+.branch--purple.is-centered,
+.is-editing .branch--purple {
+  animation-name: sway-purple;
 }
 
 /* --- the rise, split in two ------------------------------------------------
@@ -326,23 +631,58 @@ body {
 -------------------------------------------------------------------------- */
 .branch--green .branch__stem {
   transform-origin: 3.11% 79.1%; /* the anchor, in the stem box's own terms */
-  animation: rise-green 12.5s ease-in-out infinite;
+  animation: rise-green 15s ease-in-out infinite;
+}
+
+/* --- the snake ------------------------------------------------------------
+   Both tails slither. The motion lives on the PATH, not the element: the path
+   morphs through a travelling wave, so a bend born at the foot climbs the tail
+   and leaves at the head, while both endpoints stay pinned to the pixel. A
+   transform could only lean or shear the whole tail at once -- a serpentine
+   needs a different offset at every height, which is why this is a `d` morph and
+   why the purple tail had to become inline SVG rather than an <img>.
+
+   SYNCED, not merely similar: each tail's wave period is EXACTLY its own
+   branch's sway period (green 17s, purple 20s) and carries the same negative
+   delay, so the two are phase-locked. The crest arrives at the head at the same
+   point in every cycle the plant swings through, which is what makes the tail
+   look like it is driving the sway rather than wobbling underneath it.
+
+   `linear` is deliberate. Easing each keyframe would make the crest accelerate
+   and stall eight times a lap; a travelling wave has to glide at a constant rate
+   to read as one continuous slither -- the same reason a spinner is linear while
+   a UI transition never is. The eight phases per cycle keep that glide smooth.
+-------------------------------------------------------------------------- */
+.branch--green .branch__stem-path {
+  animation: stem-snake-green 17s linear -4s infinite;
 }
 
 .branch--purple .branch__stem {
   transform-origin: 5.8% 100%;
-  animation: rise-purple 12.5s ease-in-out infinite;
+  animation: rise-purple 15s ease-in-out infinite;
 }
 
-/* The secondary drift runs slower than the rise it sits on top of. Faster than
-   that and its direction changes fight the rise, which reads as fidgeting
-   rather than drifting. */
-.branch--green .branch__head {
-  animation: float-green 16s ease-in-out -6s infinite;
+.branch--purple .branch__stem-path {
+  animation: stem-snake-purple 20s linear -7s infinite;
+}
+
+/* Green keeps no independent head drift: a drift moves the head without a
+   matching move on the stem top, which is exactly what opens a gap between the
+   tail and the circle. The head's only travel is the rise/lift it shares with
+   the stem, so the joint can never separate. (Purple keeps its drift.)
+
+   Its bloom is anchored at the ball's bottom-centre (~78% down the head box --
+   the bottom of the opaque core, where the tail tucks in) rather than the head
+   centre, so breathing in can never lift the circle off the tail's top. The
+   subs share that pivot so the puff cluster and the ball breathe as one and
+   never slide against each other. */
+.branch--green .branch__head,
+.branch--green .subs {
+  transform-origin: 50% 78%;
 }
 
 .branch--purple .branch__head {
-  animation: float-purple 19.5s ease-in-out -13s infinite;
+  animation: float-purple 23s ease-in-out -13s infinite;
 }
 
 /* --- Bloom -----------------------------------------------------------------
@@ -364,7 +704,7 @@ body {
 .branch--green .branch__head,
 .branch--green .subs {
   animation-name: bloom-green, lift-green;
-  animation-duration: 18s, 12.5s;
+  animation-duration: 18s, 15s;
   animation-delay: -3s, 0s;
   animation-timing-function: ease-in-out, ease-in-out;
   animation-iteration-count: infinite;
@@ -373,38 +713,53 @@ body {
 .branch--purple .branch__head,
 .branch--purple .subs {
   animation-name: bloom-purple, lift-purple;
-  animation-duration: 21s, 12.5s;
+  animation-duration: 21s, 15s;
   animation-delay: -12s, 0s;
   animation-timing-function: ease-in-out, ease-in-out;
   animation-iteration-count: infinite;
 }
 
-/* The heads already run their drift on `transform`; keep that and add the
-   bloom alongside it rather than replacing it. */
+/* Purple's head keeps its drift on `transform` alongside the bloom. Green drops
+   the drift (see above), so its head runs only bloom + the shared lift -- the
+   two motions the stem tracks exactly, so the tail never parts from the circle. */
 .branch--green .branch__head {
-  animation-name: float-green, bloom-green, lift-green;
-  animation-duration: 16s, 18s, 12.5s;
-  animation-delay: -6s, -3s, 0s;
-  animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
+  animation-name: bloom-green, lift-green;
+  animation-duration: 18s, 15s;
+  animation-delay: -3s, 0s;
+  animation-timing-function: ease-in-out, ease-in-out;
 }
 
 .branch--purple .branch__head {
   animation-name: float-purple, bloom-purple, lift-purple;
-  animation-duration: 19.5s, 21s, 12.5s;
+  animation-duration: 23s, 21s, 15s;
   animation-delay: -13s, -12s, 0s;
   animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
 }
 
-/* Uneven stops and amplitudes keep the sway from feeling like a metronome.
-   The per-keyframe easing matters: easing every stop makes the branch pause at
-   each one, which reads as a pulse. Instead only the turning points ease, while
-   mid-travel stops stay linear, so the branch keeps flowing through them. */
+/* Sway, rise, lift and drift all run on one ease-in-out curve between just the
+   two turning points. The branch decelerates smoothly into each extreme and
+   accelerates back out, with no mid-travel easing switches -- so there are no
+   velocity jumps or sharp direction changes anywhere in the cycle. Every track
+   runs on a different period, so the combined pose still never repeats. */
+/* The whole-plant breath. Three stops on one ease-in-out curve is a pure sine:
+   it eases out of the bottom of the breath, eases into the top, and never
+   changes direction anywhere in between. Centred just under 1 so the plant is
+   at its authored size roughly half the time and never reads as inflated. */
+@keyframes breathe-green {
+  0%   { scale: 0.9955; }
+  50%  { scale: 1.0100; }
+  100% { scale: 0.9955; }
+}
+
+@keyframes breathe-purple {
+  0%   { scale: 0.9960; }
+  50%  { scale: 1.0105; }
+  100% { scale: 0.9960; }
+}
+
 @keyframes sway-green {
-  0%   { rotate: -2.1deg;  animation-timing-function: ease-in; }
-  23%  { rotate: 0.45deg;  animation-timing-function: ease-out; }
-  41%  { rotate: 2.3deg;   animation-timing-function: ease-in; }
-  67%  { rotate: -0.5deg;  animation-timing-function: linear; }
-  84%  { rotate: -1.6deg;  animation-timing-function: ease-out; }
+  0%   { rotate: -2.1deg; }
+  50%  { rotate: 2.3deg; }
   100% { rotate: -2.1deg; }
 }
 
@@ -412,78 +767,132 @@ body {
    cluster reaches ~99% of the screen width, so a symmetric swing would clip it
    on the right edge. */
 @keyframes sway-purple {
-  0%   { rotate: 1.45deg;  animation-timing-function: ease-in; }
-  19%  { rotate: -0.5deg;  animation-timing-function: ease-out; }
-  44%  { rotate: -2deg;    animation-timing-function: ease-in; }
-  62%  { rotate: -0.35deg; animation-timing-function: linear; }
-  81%  { rotate: 0.85deg;  animation-timing-function: ease-out; }
+  0%   { rotate: 1.45deg; }
+  50%  { rotate: -2deg; }
   100% { rotate: 1.45deg; }
 }
 
 /* The rise: scaleY about the anchor, so the head lifts and settles while the
    tail stays pinned. Shortening the branch drops the flower and bows the stem;
-   stretching lifts it. That is also the flex -- the stem does the bending, the
-   anchor never moves.
+   stretching lifts it -- that bow is the soft stem bend. The anchor never moves.
 
-   The curves are deliberately bottom-weighted: each branch dwells near the low
-   end and springs up briefly, so the resting pose sits lower than before while
-   the upward travel is larger. Green peaks where purple troughs, so they stay
-   opposed, but the intermediate stops and amplitudes differ, so the pair never
-   reads as an exact mirror. */
+   A single ease-in-out breath between the two extremes, so the stem eases in
+   and out of the bend with no sharp reversal. Green and purple are authored in
+   opposition -- green stretches tall as purple settles low -- and sit on a
+   period unrelated to the sway, drift and bloom, so the pair never reads as an
+   exact mirror. Both swing symmetrically about the neutral resting height, so
+   the flowers rest exactly where the layout places them. */
 @keyframes rise-green {
-  0%   { scale: 1 0.972;  animation-timing-function: ease-in; }   /* rest, low */
-  25%  { scale: 1 0.988;  animation-timing-function: ease-out; }
-  45%  { scale: 1 1.040;  animation-timing-function: ease-in; }   /* peak      */
-  66%  { scale: 1 0.998;  animation-timing-function: linear; }
-  85%  { scale: 1 0.976;  animation-timing-function: ease-out; }
-  100% { scale: 1 0.972; }
+  0%   { scale: 1 0.975; }   /* low  */
+  50%  { scale: 1 1.025; }   /* tall */
+  100% { scale: 1 0.975; }
 }
 
 @keyframes rise-purple {
-  0%   { scale: 1 1.026;  animation-timing-function: ease-in; }   /* peak      */
-  21%  { scale: 1 0.990;  animation-timing-function: ease-out; }
-  44%  { scale: 1 0.970;  animation-timing-function: ease-in; }   /* rest, low */
-  64%  { scale: 1 0.984;  animation-timing-function: linear; }
-  84%  { scale: 1 1.012;  animation-timing-function: ease-out; }
-  100% { scale: 1 1.026; }
+  0%   { scale: 1 1.025; }   /* tall */
+  50%  { scale: 1 0.975; }   /* low  */
+  100% { scale: 1 1.025; }
 }
 
-/* The head group's half of the rise: the same cycle, same stops, same easing,
-   expressed as a translate so nothing is scaled.
+/* The head group's half of the rise: the same cycle and the same two turning
+   points, expressed as a translate so nothing is scaled.
 
    Each value is the distance the stem's stretch would have carried the head,
    written as a percentage of the head's own height -- head lever / head height
-   x (scale - 1). Both lengths scale with the 9:20 box, so the ratio is fixed
-   and the motion stays responsive. Green's lever is 486%, purple's 587%. */
+   x (scale - 1). With the rise swinging +/-0.025 about neutral, that is
+   0.025 x 486 = 12.15% for green and 0.025 x 587 = 14.68% for purple. Both
+   lengths scale with the 9:20 box, so the ratio is fixed and the motion stays
+   responsive. */
 @keyframes lift-green {
-  0%   { translate: 0 13.61%;  animation-timing-function: ease-in; }
-  25%  { translate: 0 5.83%;   animation-timing-function: ease-out; }
-  45%  { translate: 0 -19.45%; animation-timing-function: ease-in; }
-  66%  { translate: 0 0.97%;   animation-timing-function: linear; }
-  85%  { translate: 0 11.67%;  animation-timing-function: ease-out; }
-  100% { translate: 0 13.61%; }
+  0%   { translate: 0 12.15%; }
+  50%  { translate: 0 -12.15%; }
+  100% { translate: 0 12.15%; }
 }
 
 @keyframes lift-purple {
-  0%   { translate: 0 -15.26%; animation-timing-function: ease-in; }
-  21%  { translate: 0 5.87%;   animation-timing-function: ease-out; }
-  44%  { translate: 0 17.60%;  animation-timing-function: ease-in; }
-  64%  { translate: 0 9.39%;   animation-timing-function: linear; }
-  84%  { translate: 0 -7.04%;  animation-timing-function: ease-out; }
-  100% { translate: 0 -15.26%; }
+  0%   { translate: 0 -14.68%; }
+  50%  { translate: 0 14.68%; }
+  100% { translate: 0 -14.68%; }
+}
+
+/* Middle-only tail bend. Every point's x is offset by A*sin(pi * y / 396): that
+   factor is exactly 0 at the top (y=0) and the bottom (y=396) and peaks at the
+   middle (y=198), so the two endpoints are byte-identical in both keyframes --
+   the top stays locked to the circle, the bottom stays anchored, and only the
+   midsection bows. Left bow (A=-5) eases to right bow (A=+5) and back. The base
+   `d` on the element is the straight path, so reduced motion shows no bend. */
+/* The travelling wave, generated so every phase shares one segment structure
+   (the requirement for `d` to interpolate at all). Offset at each height is
+   A * taper(u) * sin(2pi*(1.35u - t)): 1.35 waves visible along the tail, and a
+   taper that reaches zero at BOTH ends so the ground anchor and the head joint
+   never move. Amplitude is ~5 units on a ~100-unit-wide box -- a slither, not a
+   thrash. */
+/* The travelling wave, generated so every phase shares one segment structure
+   (the requirement for `d` to interpolate at all). Offset at each height is
+   A * taper(u) * sin(2pi*(1.35u - t)): 1.35 waves visible along the tail, and a
+   taper that reaches zero at BOTH ends so the ground anchor and the head joint
+   never move. Amplitude is ~5 units on a ~100-unit-wide box -- a slither, not a
+   thrash. */
+@keyframes stem-snake-green {
+  0%,
+  100% {
+    d: path("M 96.08 0.00 C 96.25 3.30 97.13 13.20 97.49 19.80 C 97.91 26.40 98.20 33.00 98.31 39.60 C 98.42 46.20 98.33 52.80 98.00 59.40 C 97.62 66.00 97.00 72.60 96.05 79.20 C 95.02 85.80 93.70 92.40 91.97 99.00 C 90.16 105.60 88.00 112.20 85.43 118.80 C 82.77 125.40 79.75 132.00 76.35 138.60 C 72.93 145.20 69.13 151.80 65.11 158.40 C 61.11 165.00 56.75 171.60 52.43 178.20 C 48.18 184.80 43.67 191.40 39.51 198.00 C 35.45 204.60 31.33 211.20 27.81 217.80 C 24.39 224.40 21.18 231.00 18.64 237.60 C 16.17 244.20 14.23 250.80 12.67 257.40 C 11.14 264.00 10.12 270.60 9.23 277.20 C 8.33 283.80 7.72 290.40 7.19 297.00 C 6.59 303.60 6.16 310.20 5.77 316.80 C 5.31 323.40 4.94 330.00 4.59 336.60 C 4.17 343.20 3.81 349.80 3.50 356.40 C 3.15 363.00 2.94 369.60 2.70 376.20 C 2.45 382.80 2.20 392.70 2.10 396.00");
+  }
+  12.5% {
+    d: path("M 96.08 0.00 C 96.11 3.30 96.59 13.20 96.73 19.80 C 96.94 26.40 97.07 33.00 97.05 39.60 C 97.11 46.20 97.02 52.80 96.76 59.40 C 96.52 66.00 96.10 72.60 95.42 79.20 C 94.70 85.80 93.74 92.40 92.41 99.00 C 91.02 105.60 89.29 112.20 87.15 118.80 C 84.89 125.40 82.25 132.00 79.19 138.60 C 76.05 145.20 72.46 151.80 68.58 158.40 C 64.65 165.00 60.28 171.60 55.86 178.20 C 51.44 184.80 46.69 191.40 42.21 198.00 C 37.78 204.60 33.25 211.20 29.28 217.80 C 25.39 224.40 21.71 231.00 18.69 237.60 C 15.77 244.20 13.41 250.80 11.46 257.40 C 9.60 264.00 8.30 270.60 7.20 277.20 C 6.15 283.80 5.47 290.40 4.91 297.00 C 4.37 303.60 4.04 310.20 3.80 316.80 C 3.52 323.40 3.37 330.00 3.25 336.60 C 3.09 343.20 2.96 349.80 2.88 356.40 C 2.73 363.00 2.70 369.60 2.59 376.20 C 2.43 382.80 2.22 392.70 2.10 396.00");
+  }
+  25% {
+    d: path("M 96.08 0.00 C 96.04 3.30 96.26 13.20 96.17 19.80 C 96.13 26.40 96.00 33.00 95.73 39.60 C 95.55 46.20 95.26 52.80 94.82 59.40 C 94.47 66.00 93.99 72.60 93.32 79.20 C 92.68 85.80 91.87 92.40 90.76 99.00 C 89.65 105.60 88.26 112.20 86.51 118.80 C 84.69 125.40 82.51 132.00 79.92 138.60 C 77.25 145.20 74.13 151.80 70.69 158.40 C 67.15 165.00 63.12 171.60 58.99 178.20 C 54.79 184.80 50.17 191.40 45.76 198.00 C 41.30 204.60 36.68 211.20 32.53 217.80 C 28.40 224.40 24.42 231.00 21.05 237.60 C 17.74 244.20 14.96 250.80 12.58 257.40 C 10.29 264.00 8.57 270.60 7.07 277.20 C 5.66 283.80 4.65 290.40 3.83 297.00 C 3.07 303.60 2.58 310.20 2.24 316.80 C 1.93 323.40 1.80 330.00 1.76 336.60 C 1.70 343.20 1.73 349.80 1.82 356.40 C 1.87 363.00 2.03 369.60 2.12 376.20 C 2.13 382.80 2.16 392.70 2.10 396.00");
+  }
+  37.5% {
+    d: path("M 96.08 0.00 C 96.09 3.30 96.32 13.20 96.14 19.80 C 95.96 26.40 95.63 33.00 95.12 39.60 C 94.66 46.20 94.06 52.80 93.32 59.40 C 92.67 66.00 91.91 72.60 90.98 79.20 C 90.14 85.80 89.18 92.40 87.98 99.00 C 86.85 105.60 85.52 112.20 83.90 118.80 C 82.28 125.40 80.37 132.00 78.12 138.60 C 75.85 145.20 73.17 151.80 70.20 158.40 C 67.15 165.00 63.63 171.60 59.99 178.20 C 56.26 184.80 52.08 191.40 48.07 198.00 C 43.95 204.60 39.60 211.20 35.66 217.80 C 31.66 224.40 27.73 231.00 24.34 237.60 C 20.93 244.20 17.98 250.80 15.38 257.40 C 12.81 264.00 10.76 270.60 8.92 277.20 C 7.14 283.80 5.76 290.40 4.57 297.00 C 3.46 303.60 2.65 310.20 2.03 316.80 C 1.47 323.40 1.15 330.00 0.97 336.60 C 0.83 343.20 0.83 349.80 0.94 356.40 C 1.06 363.00 1.33 369.60 1.56 376.20 C 1.74 382.80 2.05 392.70 2.10 396.00");
+  }
+  50% {
+    d: path("M 96.08 0.00 C 96.23 3.30 96.73 13.20 96.67 19.80 C 96.53 26.40 96.18 33.00 95.57 39.60 C 94.96 46.20 94.15 52.80 93.14 59.40 C 92.18 66.00 91.08 72.60 89.79 79.20 C 88.58 85.80 87.24 92.40 85.71 99.00 C 84.26 105.60 82.66 112.20 80.83 118.80 C 79.07 125.40 77.09 132.00 74.85 138.60 C 72.65 145.20 70.13 151.80 67.39 158.40 C 64.65 165.00 61.49 171.60 58.27 178.20 C 55.00 184.80 51.31 191.40 47.79 198.00 C 44.17 204.60 40.31 211.20 36.83 217.80 C 33.25 224.40 29.70 231.00 26.62 237.60 C 23.47 244.20 20.71 250.80 18.21 257.40 C 15.68 264.00 13.60 270.60 11.67 277.20 C 9.73 283.80 8.14 290.40 6.69 297.00 C 5.31 303.60 4.20 310.20 3.27 316.80 C 2.41 323.40 1.80 330.00 1.35 336.60 C 0.99 343.20 0.79 349.80 0.76 356.40 C 0.77 363.00 1.00 369.60 1.24 376.20 C 1.47 382.80 1.96 392.70 2.10 396.00");
+  }
+  62.5% {
+    d: path("M 96.08 0.00 C 96.37 3.30 97.27 13.20 97.43 19.80 C 97.50 26.40 97.31 33.00 96.83 39.60 C 96.27 46.20 95.46 52.80 94.38 59.40 C 93.28 66.00 91.98 72.60 90.42 79.20 C 88.90 85.80 87.20 92.40 85.27 99.00 C 83.40 105.60 81.37 112.20 79.11 118.80 C 76.95 125.40 74.59 132.00 72.01 138.60 C 69.53 145.20 66.80 151.80 63.92 158.40 C 61.11 165.00 57.96 171.60 54.84 178.20 C 51.74 184.80 48.29 191.40 45.09 198.00 C 41.84 204.60 38.39 211.20 35.36 217.80 C 32.25 224.40 29.17 231.00 26.57 237.60 C 23.87 244.20 21.53 250.80 19.42 257.40 C 17.22 264.00 15.42 270.60 13.70 277.20 C 11.91 283.80 10.39 290.40 8.97 297.00 C 7.53 303.60 6.32 310.20 5.24 316.80 C 4.20 323.40 3.37 330.00 2.69 336.60 C 2.07 343.20 1.64 349.80 1.38 356.40 C 1.19 363.00 1.24 369.60 1.35 376.20 C 1.49 382.80 1.94 392.70 2.10 396.00");
+  }
+  75% {
+    d: path("M 96.08 0.00 C 96.44 3.30 97.60 13.20 97.99 19.80 C 98.31 26.40 98.38 33.00 98.15 39.60 C 97.83 46.20 97.22 52.80 96.32 59.40 C 95.33 66.00 94.09 72.60 92.52 79.20 C 90.92 85.80 89.07 92.40 86.92 99.00 C 84.77 105.60 82.40 112.20 79.75 118.80 C 77.15 125.40 74.33 132.00 71.28 138.60 C 68.33 145.20 65.13 151.80 61.81 158.40 C 58.61 165.00 55.12 171.60 51.71 178.20 C 48.39 184.80 44.81 191.40 41.54 198.00 C 38.32 204.60 34.96 211.20 32.11 217.80 C 29.24 224.40 26.46 231.00 24.21 237.60 C 21.90 244.20 19.98 250.80 18.30 257.40 C 16.53 264.00 15.15 270.60 13.83 277.20 C 12.40 283.80 11.21 290.40 10.05 297.00 C 8.83 303.60 7.78 310.20 6.80 316.80 C 5.79 323.40 4.94 330.00 4.18 336.60 C 3.46 343.20 2.87 349.80 2.44 356.40 C 2.05 363.00 1.91 369.60 1.82 376.20 C 1.79 382.80 2.00 392.70 2.10 396.00");
+  }
+  87.5% {
+    d: path("M 96.08 0.00 C 96.39 3.30 97.54 13.20 98.02 19.80 C 98.48 26.40 98.75 33.00 98.76 39.60 C 98.72 46.20 98.42 52.80 97.82 59.40 C 97.13 66.00 96.17 72.60 94.86 79.20 C 93.46 85.80 91.76 92.40 89.70 99.00 C 87.57 105.60 85.14 112.20 82.36 118.80 C 79.56 125.40 76.47 132.00 73.08 138.60 C 69.73 145.20 66.09 151.80 62.30 158.40 C 58.61 165.00 54.61 171.60 50.71 178.20 C 46.92 184.80 42.90 191.40 39.23 198.00 C 35.67 204.60 32.04 211.20 28.98 217.80 C 25.98 224.40 23.15 231.00 20.92 237.60 C 18.71 244.20 16.96 250.80 15.50 257.40 C 14.01 264.00 12.96 270.60 11.98 277.20 C 10.92 283.80 10.10 290.40 9.31 297.00 C 8.44 303.60 7.71 310.20 7.01 316.80 C 6.25 323.40 5.59 330.00 4.97 336.60 C 4.33 343.20 3.77 349.80 3.32 356.40 C 2.86 363.00 2.61 369.60 2.38 376.20 C 2.18 382.80 2.11 392.70 2.10 396.00");
+  }
+}
+
+@keyframes stem-snake-purple {
+  0%,
+  100% {
+    d: path("M 147.55 0.00 C 147.80 3.79 148.67 15.17 149.38 22.75 C 150.16 30.33 151.22 37.92 151.88 45.50 C 152.56 53.08 153.25 60.67 153.24 68.25 C 153.19 75.83 152.88 83.42 151.54 91.00 C 150.11 98.58 148.03 106.17 144.84 113.75 C 141.53 121.33 137.06 128.92 132.04 136.50 C 126.92 144.08 121.01 151.67 114.53 159.25 C 108.00 166.83 100.65 174.42 93.15 182.00 C 85.68 189.58 77.47 197.17 69.78 204.75 C 62.15 212.33 54.20 219.92 47.32 227.50 C 40.55 235.08 34.08 242.67 28.89 250.25 C 23.80 257.83 19.72 265.42 16.43 273.00 C 13.22 280.58 11.08 288.17 9.28 295.75 C 7.53 303.33 6.44 310.92 5.59 318.50 C 4.75 326.08 4.32 333.67 4.07 341.25 C 3.76 348.83 3.72 356.42 3.80 364.00 C 3.79 371.58 3.97 379.17 4.25 386.75 C 4.45 394.33 4.80 401.92 5.28 409.50 C 5.71 417.08 6.36 424.67 7.07 432.25 C 7.76 439.83 9.17 451.21 9.59 455.00");
+  }
+  12.5% {
+    d: path("M 147.55 0.00 C 147.63 3.79 148.06 15.17 148.50 22.75 C 149.05 30.33 149.91 37.92 150.44 45.50 C 151.05 53.08 151.75 60.67 151.82 68.25 C 151.92 75.83 151.85 83.42 150.81 91.00 C 149.74 98.58 148.08 106.17 145.34 113.75 C 142.52 121.33 138.54 128.92 134.01 136.50 C 129.36 144.08 123.88 151.67 117.78 159.25 C 111.58 166.83 104.47 174.42 97.14 182.00 C 89.74 189.58 81.52 197.17 73.72 204.75 C 65.89 212.33 57.66 219.92 50.42 227.50 C 43.23 235.08 36.29 242.67 30.58 250.25 C 24.95 257.83 20.32 265.42 16.48 273.00 C 12.76 280.58 10.14 288.17 7.89 295.75 C 5.75 303.33 4.35 310.92 3.26 318.50 C 2.25 326.08 1.73 333.67 1.46 341.25 C 1.20 348.83 1.28 356.42 1.53 364.00 C 1.74 371.58 2.17 379.17 2.72 386.75 C 3.20 394.33 3.83 401.92 4.57 409.50 C 5.24 417.08 6.09 424.67 6.95 432.25 C 7.74 439.83 9.19 451.21 9.59 455.00");
+  }
+  25% {
+    d: path("M 147.55 0.00 C 147.55 3.79 147.68 15.17 147.86 22.75 C 148.12 30.33 148.69 37.92 148.93 45.50 C 149.26 53.08 149.72 60.67 149.59 68.25 C 149.56 75.83 149.43 83.42 148.39 91.00 C 147.42 98.58 145.93 106.17 143.45 113.75 C 140.95 121.33 137.37 128.92 133.28 136.50 C 129.13 144.08 124.18 151.67 118.63 159.25 C 112.97 166.83 106.39 174.42 99.56 182.00 C 92.61 189.58 84.79 197.17 77.31 204.75 C 69.73 212.33 61.66 219.92 54.49 227.50 C 47.28 235.08 40.22 242.67 34.31 250.25 C 28.41 257.83 23.44 265.42 19.19 273.00 C 15.02 280.58 11.92 288.17 9.18 295.75 C 6.55 303.33 4.66 310.92 3.11 318.50 C 1.68 326.08 0.80 333.67 0.22 341.25 C -0.29 348.83 -0.39 356.42 -0.25 364.00 C -0.08 371.58 0.37 379.17 1.00 386.75 C 1.61 394.33 2.42 401.92 3.36 409.50 C 4.24 417.08 5.32 424.67 6.40 432.25 C 7.40 439.83 9.12 451.21 9.59 455.00");
+  }
+  37.5% {
+    d: path("M 147.55 0.00 C 147.60 3.79 147.74 15.17 147.83 22.75 C 147.93 30.33 148.26 37.92 148.22 45.50 C 148.24 53.08 148.35 60.67 147.87 68.25 C 147.50 75.83 147.04 83.42 145.72 91.00 C 144.51 98.58 142.84 106.17 140.25 113.75 C 137.74 121.33 134.21 128.92 130.28 136.50 C 126.36 144.08 121.72 151.67 116.56 159.25 C 111.35 166.83 105.28 174.42 98.99 182.00 C 92.61 189.58 85.36 197.17 78.46 204.75 C 71.42 212.33 63.85 219.92 57.14 227.50 C 50.32 235.08 43.58 242.67 37.91 250.25 C 32.15 257.83 27.24 265.42 22.97 273.00 C 18.68 280.58 15.39 288.17 12.39 295.75 C 9.44 303.33 7.18 310.92 5.24 318.50 C 3.38 326.08 2.07 333.67 1.06 341.25 C 0.16 348.83 -0.32 356.42 -0.50 364.00 C -0.61 371.58 -0.38 379.17 0.09 386.75 C 0.61 394.33 1.38 401.92 2.35 409.50 C 3.31 417.08 4.51 424.67 5.76 432.25 C 6.95 439.83 8.99 451.21 9.59 455.00");
+  }
+  50% {
+    d: path("M 147.55 0.00 C 147.76 3.79 148.23 15.17 148.44 22.75 C 148.58 30.33 148.88 37.92 148.74 45.50 C 148.58 53.08 148.45 60.67 147.66 68.25 C 146.93 75.83 146.08 83.42 144.34 91.00 C 142.71 98.58 140.63 106.17 137.64 113.75 C 134.77 121.33 130.94 128.92 126.76 136.50 C 122.68 144.08 117.95 151.67 112.79 159.25 C 107.68 166.83 101.79 174.42 95.77 182.00 C 89.74 189.58 82.91 197.17 76.48 204.75 C 69.97 212.33 62.96 219.92 56.82 227.50 C 50.57 235.08 44.40 242.67 39.25 250.25 C 33.98 257.83 29.50 265.42 25.59 273.00 C 21.60 280.58 18.52 288.17 15.64 295.75 C 12.73 303.33 10.44 310.92 8.39 318.50 C 6.35 326.08 4.80 333.67 3.51 341.25 C 2.28 348.83 1.46 356.42 0.92 364.00 C 0.47 371.58 0.37 379.17 0.53 386.75 C 0.79 394.33 1.34 401.92 2.14 409.50 C 2.99 417.08 4.14 424.67 5.39 432.25 C 6.64 439.83 8.89 451.21 9.59 455.00");
+  }
+  62.5% {
+    d: path("M 147.55 0.00 C 147.93 3.79 148.84 15.17 149.32 22.75 C 149.69 30.33 150.19 37.92 150.18 45.50 C 150.09 53.08 149.95 60.67 149.08 68.25 C 148.20 75.83 147.11 83.42 145.07 91.00 C 143.08 98.58 140.58 106.17 137.14 113.75 C 133.78 121.33 129.46 128.92 124.79 136.50 C 120.24 144.08 115.08 151.67 109.54 159.25 C 104.10 166.83 97.97 174.42 91.78 182.00 C 85.68 189.58 78.86 197.17 72.54 204.75 C 66.23 212.33 59.50 219.92 53.72 227.50 C 47.89 235.08 42.19 242.67 37.56 250.25 C 32.83 257.83 28.90 265.42 25.54 273.00 C 22.06 280.58 19.46 288.17 17.03 295.75 C 14.51 303.33 12.53 310.92 10.72 318.50 C 8.85 326.08 7.39 333.67 6.12 341.25 C 4.84 348.83 3.90 356.42 3.19 364.00 C 2.52 371.58 2.17 379.17 2.06 386.75 C 2.04 394.33 2.31 401.92 2.85 409.50 C 3.46 417.08 4.41 424.67 5.51 432.25 C 6.66 439.83 8.87 451.21 9.59 455.00");
+  }
+  75% {
+    d: path("M 147.55 0.00 C 148.01 3.79 149.22 15.17 149.96 22.75 C 150.62 30.33 151.41 37.92 151.69 45.50 C 151.88 53.08 151.98 60.67 151.31 68.25 C 150.56 75.83 149.53 83.42 147.49 91.00 C 145.40 98.58 142.73 106.17 139.03 113.75 C 135.35 121.33 130.63 128.92 125.52 136.50 C 120.47 144.08 114.78 151.67 108.69 159.25 C 102.71 166.83 96.05 174.42 89.36 182.00 C 82.81 189.58 75.59 197.17 68.95 204.75 C 62.39 212.33 55.50 219.92 49.65 227.50 C 43.84 235.08 38.26 242.67 33.83 250.25 C 29.37 257.83 25.78 265.42 22.83 273.00 C 19.80 280.58 17.68 288.17 15.74 295.75 C 13.71 303.33 12.22 310.92 10.87 318.50 C 9.42 326.08 8.32 333.67 7.36 341.25 C 6.33 348.83 5.57 356.42 4.97 364.00 C 4.34 371.58 3.97 379.17 3.78 386.75 C 3.63 394.33 3.72 401.92 4.06 409.50 C 4.46 417.08 5.18 424.67 6.06 432.25 C 7.00 439.83 8.94 451.21 9.59 455.00");
+  }
+  87.5% {
+    d: path("M 147.55 0.00 C 147.96 3.79 149.16 15.17 149.99 22.75 C 150.81 30.33 151.84 37.92 152.40 45.50 C 152.90 53.08 153.35 60.67 153.03 68.25 C 152.62 75.83 151.92 83.42 150.16 91.00 C 148.31 98.58 145.82 106.17 142.23 113.75 C 138.56 121.33 133.79 128.92 128.52 136.50 C 123.24 144.08 117.24 151.67 110.76 159.25 C 104.33 166.83 97.16 174.42 89.93 182.00 C 82.81 189.58 75.02 197.17 67.80 204.75 C 60.70 212.33 53.31 219.92 47.00 227.50 C 40.80 235.08 34.90 242.67 30.23 250.25 C 25.63 257.83 21.98 265.42 19.05 273.00 C 16.14 280.58 14.21 288.17 12.53 295.75 C 10.82 303.33 9.70 310.92 8.74 318.50 C 7.72 326.08 7.05 333.67 6.52 341.25 C 5.88 348.83 5.50 356.42 5.22 364.00 C 4.87 371.58 4.72 379.17 4.69 386.75 C 4.63 394.33 4.76 401.92 5.07 409.50 C 5.39 417.08 5.99 424.67 6.70 432.25 C 7.45 439.83 9.07 451.21 9.59 455.00");
+  }
 }
 
 /* Secondary drift: a small orbit on the head alone, so it is not perfectly
    rigid on its stem. Kept well under the rise amplitude -- it seasons the
-   motion rather than driving it. */
-@keyframes float-green {
-  0%   { transform: translate(0, 0); }
-  27%  { transform: translate(0.8%, -2.6%); }
-  53%  { transform: translate(-0.6%, -0.8%); }
-  78%  { transform: translate(0.4%, 1.8%); }
-  100% { transform: translate(0, 0); }
-}
-
+   motion rather than driving it. Purple only: green drops the head drift so its
+   head never moves out from under the stem top (see .branch--green .branch__head). */
 @keyframes float-purple {
   0%   { transform: translate(0, 0); }
   31%  { transform: translate(-0.7%, 2.2%); }
@@ -513,46 +922,109 @@ body {
   100% { scale: 1; }
 }
 
-/* Each sub gets the same three-part motion -- drift, breathe, tilt -- but on its
-   own clock. The placement lives on the wrapping <g>, so these transforms are
-   free to be purely local: values are in units of the sub's own radius, which
-   makes one keyframe set work for every size. */
+/* --- The puff: openness, drift, wave --------------------------------------
+   `--petal-open` is the single smoothness dial for one puff: 1 = fully open,
+   0 = gathered shut at the head. It is INHERITED, which is what makes the rings
+   inside the motif (see below) able to read it even though they are reached
+   through <use> -- inherited custom properties cross into a use shadow tree,
+   ordinary selectors do not.
+
+   Two things write it:
+     * labels.js, per frame, on each sub-slot while the Space bloom runs, so the
+       rings unfurl on exactly the same eased curve as the petal itself;
+     * the drill-down reveal below, which transitions it 0 -> 1.
+   Registering it as a real <number> is what lets that transition INTERPOLATE
+   instead of flipping at the end -- an unregistered custom property is just a
+   token stream and cannot be animated.
+-------------------------------------------------------------------------- */
+@property --petal-open {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/* Each sub gets the same motion -- drift, breathe, tilt -- but on its own clock,
+   plus a slow pendulum wave layered on top. The placement lives on the wrapping
+   <g>, so these transforms are free to be purely local: values are in units of
+   the sub's own radius, which makes one keyframe set work for every size.
+
+   drift rides `transform`; wave rides the INDIVIDUAL `rotate` / `translate`
+   properties. Different properties compose instead of overwriting, so the two
+   run on unrelated periods and the puff never repeats the same pose -- and the
+   reveal below can still own `scale` without touching either. */
+/* Sub-branch puffs animate in state 2 (Space -> labels up, when the subs are
+   clickable) and state 3 (a plant drilled + standing centred). State 1 (ambient)
+   holds them perfectly still. This variable is INHERITED -- including into the
+   <use> shadow tree -- so the single switch pauses/runs the puff drift/wave, the
+   ring ripple/shimmer and the glow all at once. labels.js adds/removes .subs-live
+   to flip it for state 2. */
+.app { --puff-anim: paused; }
+.app.subs-live { --puff-anim: running; }
+/* State 3: the drilled plant is .is-centered. Keep its puffs gently alive (drift +
+   sway) so the centred dandelion never looks frozen. This overrides the paused
+   default for that subtree only, via inheritance. The clickable-cue ring spin is
+   NOT reintroduced -- its rule is scoped to :not(.is-centered), so the centred
+   plant breathes and sways but never spins. */
+.app .branch.is-centered { --puff-anim: running; }
+
+/* Accessibility: with reduced motion requested, hold the centred plant still too. */
+@media (prefers-reduced-motion: reduce) {
+  .app .branch.is-centered { --puff-anim: paused; }
+}
+
 .sub {
   transform-box: fill-box;
   transform-origin: center;
-  animation: sub-drift 11s ease-in-out infinite;
+  animation: sub-drift 11s ease-in-out infinite,
+             sub-wave 8.5s ease-in-out infinite;
+  animation-play-state: var(--puff-anim, running);
 }
 
-.sub--g1 { animation-duration: 10.5s; animation-delay: -1.2s; }
-.sub--g2 { animation-duration: 13s;   animation-delay: -5.6s; }
-.sub--g3 { animation-duration: 11.5s; animation-delay: -8.1s; }
-.sub--g4 { animation-duration: 14.5s; animation-delay: -3.4s; }
+/* duration / delay lists: [drift, wave]. The wave periods are deliberately
+   coprime-ish with the drift periods so the sum of the two never lands back on
+   the same beat, and every puff waves out of step with its neighbours.
+   --breath-dur is the third period (the scale-in/out on the <use> below); it is
+   picked the same way, so no two puffs breathe together for long. */
+.sub--g1 { animation-duration: 10.5s, 8.2s;  animation-delay: -1.2s, -0.6s; --puff-phase: -0.6s; --breath-dur: 11.3s; }
+.sub--g2 { animation-duration: 13s,   9.7s;  animation-delay: -5.6s, -3.9s; --puff-phase: -3.9s; --breath-dur: 9.6s;  }
+.sub--g3 { animation-duration: 11.5s, 7.4s;  animation-delay: -8.1s, -2.2s; --puff-phase: -2.2s; --breath-dur: 12.4s; }
+.sub--g4 { animation-duration: 14.5s, 10.3s; animation-delay: -3.4s, -6.5s; --puff-phase: -6.5s; --breath-dur: 10.1s; }
 
-.sub--p1 { animation-duration: 12s;   animation-delay: -6.7s; }
-.sub--p2 { animation-duration: 14s;   animation-delay: -2.1s; }
-.sub--p3 { animation-duration: 10s;   animation-delay: -9.3s; }
-.sub--p4 { animation-duration: 13.5s; animation-delay: -4.8s; }
-.sub--p5 { animation-duration: 11.8s; animation-delay: -7.9s; }
+.sub--p1 { animation-duration: 12s,   9.1s;  animation-delay: -6.7s, -1.8s; --puff-phase: -1.8s; --breath-dur: 10.8s; }
+.sub--p2 { animation-duration: 14s,   7.8s;  animation-delay: -2.1s, -5.1s; --puff-phase: -5.1s; --breath-dur: 12.9s; }
+.sub--p3 { animation-duration: 10s,   10.6s; animation-delay: -9.3s, -7.7s; --puff-phase: -7.7s; --breath-dur: 9.3s;  }
+.sub--p4 { animation-duration: 13.5s, 8.9s;  animation-delay: -4.8s, -4.3s; --puff-phase: -4.3s; --breath-dur: 11.6s; }
+.sub--p5 { animation-duration: 11.8s, 9.4s;  animation-delay: -7.9s, -2.9s; --puff-phase: -2.9s; --breath-dur: 13.4s; }
 
 /* Float + pulse + sway in one track, so the three stay in step per sub.
    Percentages resolve against each sub's own box (transform-box: fill-box), so
-   one keyframe set drives every sub at its own size. The scale swing is small
-   on purpose -- a puff that throbs reads as a button, not as a seed head. */
+   one keyframe set drives every sub at its own size. The swing is small on
+   purpose -- a puff that throbs reads as a button, not as a seed head. Extra
+   stops (and a matching ease on each) keep the velocity continuous through the
+   turns, so the drift reads as one long breath rather than four moves. */
 @keyframes sub-drift {
   0% {
     transform: translate(0, 0) scale(1) rotate(0deg);
     animation-timing-function: ease-in-out;
   }
-  27% {
-    transform: translate(5%, -7%) scale(1.05) rotate(2.5deg);
+  17% {
+    transform: translate(3.1%, -4.4%) scale(1.022) rotate(1.4deg);
     animation-timing-function: ease-in-out;
   }
-  54% {
-    transform: translate(-4%, 3%) scale(0.965) rotate(-1.5deg);
+  34% {
+    transform: translate(4.4%, -6.2%) scale(1.042) rotate(2.2deg);
     animation-timing-function: ease-in-out;
   }
-  79% {
-    transform: translate(2.5%, 6%) scale(1.02) rotate(1deg);
+  52% {
+    transform: translate(-1.2%, -0.8%) scale(1.004) rotate(0.2deg);
+    animation-timing-function: ease-in-out;
+  }
+  68% {
+    transform: translate(-3.6%, 2.7%) scale(0.972) rotate(-1.3deg);
+    animation-timing-function: ease-in-out;
+  }
+  85% {
+    transform: translate(1.9%, 4.6%) scale(1.016) rotate(0.8deg);
     animation-timing-function: ease-in-out;
   }
   100% {
@@ -560,8 +1032,175 @@ body {
   }
 }
 
+/* Each puff gets its own gentle scale-in / scale-out on top of the drift and the
+   wave. It rides the <use> element rather than .sub because every transform
+   layer on .sub is already spoken for -- `transform` by the drift, `rotate` /
+   `translate` by the wave, and `scale` by the drill-down reveal. The <use> is a
+   real element in the light DOM (only its CONTENT is a shadow tree), so it can
+   carry the breath without a wrapper and without contending with any of them.
+
+   Scoped to a branch that is not centred, i.e. the first state: once a drill has
+   spawned the plant in the middle, the reveal's own pop is the puff's scale
+   story and a second one underneath it would muddy the landing.
+
+   --puff-phase is the same per-sub offset the rings use, so a puff's breath, its
+   ripple and its shimmer all belong to one clock instead of three. */
+.branch:not(.is-centered) .sub use {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sub-breathe var(--breath-dur, 10.5s) ease-in-out infinite;
+  animation-delay: var(--puff-phase, 0s);
+  animation-play-state: var(--puff-anim, running);
+}
+
+/* 2nd state (Space -> labels up): the puff RINGS turn slowly -- a steady, quiet
+   cue that the sub-branches are clickable. labels.js adds .subs-live to the app
+   once the bloom + label reveal has settled, and removes it on the way back to
+   state 1. The spin rides the <use>'s free `rotate` layer (its `scale` is the
+   breath); this re-states the breath so both run together, at a higher
+   specificity than the base rule above so it wins. The label is a SIBLING of .sub
+   (not inside the <use>), so it never spins -- only the rings do. */
+@keyframes ring-spin { to { rotate: 1turn; } }
+
+.app.subs-live .branch:not(.is-centered) .sub use {
+  animation: sub-breathe var(--breath-dur, 10.5s) ease-in-out infinite,
+             ring-spin 20s linear infinite;
+  animation-delay: var(--puff-phase, 0s), 0s;
+  animation-play-state: var(--puff-anim, running);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sub {
+  .app.subs-live .branch:not(.is-centered) .sub use { animation: none; }
+}
+
+/* ~2.8% peak to peak -- enough to read as breathing at a glance, small enough
+   that the puff never looks like it is being poked. */
+@keyframes sub-breathe {
+  0%   { scale: 0.992; }
+  50%  { scale: 1.020; }
+  100% { scale: 0.992; }
+}
+
+/* The wave: a slow pendulum on `rotate`, with a small lateral `translate` that
+   trails a quarter-period behind it, the way a seed head lags the gust that
+   moves it. Only three stops, all eased -- that is a pure sine sway with no
+   turning point to snag on. */
+@keyframes sub-wave {
+  0%   { rotate: -2.2deg; translate: -1.4% 0.5%; }
+  50%  { rotate:  2.2deg; translate:  1.4% -0.5%; }
+  100% { rotate: -2.2deg; translate: -1.4% 0.5%; }
+}
+
+/* --- The rings inside a puff ----------------------------------------------
+   Each motif is a stack of concentric dot-rings (3 green, 8 purple) living in
+   <defs> and painted through <use>. A rule that matches the ORIGINAL element is
+   cloned into every <use>, so these two selectors drive all 9 puffs at once,
+   and the per-puff `--puff-phase` / per-petal `--petal-open` they inherit keep
+   every copy on its own clock rather than in lock-step.
+
+   Three motions, deliberately on three different properties so none of them can
+   overwrite another:
+     transform : the UNFURL, computed straight from --petal-open. Outer rings
+                 lag inner ones, so the puff opens from the middle outward and
+                 gathers back inward in the same order.
+     scale     : the idle ripple (a slow radial breath, phase-shifted per ring,
+                 which reads as a wave travelling out through the rings).
+     opacity   : a faint shimmer, scaled BY the unfurl so a half-open ring never
+                 shimmers back up to full strength.
+-------------------------------------------------------------------------- */
+#sub-green-motif .ring,
+#sub-purple-motif .ring {
+  transform-box: fill-box;
+  transform-origin: center;
+
+  /* This ring's own 0..1 openness, re-mapped out of the petal's. --lag is where
+     this ring starts moving, --gain (= 1 / (1 - lag)) stretches what is left
+     back over the full range, so every ring still finishes exactly at 1.
+     Multiplication only: calc() division by a variable is not worth the risk. */
+  --o: clamp(0, calc((var(--petal-open, 1) - var(--lag, 0)) * var(--gain, 1)), 1);
+
+  transform: scale(calc(0.45 + 0.55 * var(--o)))
+             rotate(calc((1 - var(--o)) * -14deg));
+
+  animation: ring-ripple var(--ripple-dur, 9.5s) ease-in-out infinite,
+             ring-shimmer var(--shimmer-dur, 6.5s) ease-in-out infinite;
+  /* Inner rings lead: a negative, index-scaled delay is what turns nine
+     identical ripples into one wave moving outward. */
+  animation-delay: calc(var(--puff-phase, 0s) + var(--ring-i, 0) * -0.62s),
+                   calc(var(--puff-phase, 0s) + var(--ring-i, 0) * -0.41s);
+  /* Runs only in state 2 -- the inherited switch crosses into the <use> shadow. */
+  animation-play-state: var(--puff-anim, running);
+}
+
+/* --ring-i drives the ripple delay; --lag / --gain drive the unfurl stagger.
+   Green has 3 rings so it can afford a wide lag step; purple has 8 and needs a
+   narrow one, or its outermost ring would still be shut when the petal is open. */
+#sub-green-motif .ring--1 { --ring-i: 0; --lag: 0;    --gain: 1;      }
+#sub-green-motif .ring--2 { --ring-i: 1; --lag: 0.16; --gain: 1.1905; }
+#sub-green-motif .ring--3 { --ring-i: 2; --lag: 0.32; --gain: 1.4706; }
+
+/* The outermost green ring (ring--3, the LAST ring) is lemon-green on the green
+   SUB-BRANCHES. It reads a variable that only .branch--green sets, and CSS fill
+   beats the motif's own fill attribute -- so the sub-branches turn lemon while the
+   state-2 motif bubbles (same motif, but NOT inside a branch) keep the original
+   green via the fallback. The variable is inherited, including across the <use>
+   shadow boundary, which is what carries it into the cloned ring. */
+#sub-green-motif .ring--3 { fill: var(--g-ring3, #8DCD9B); }
+.branch--green { --g-ring3: #C4F24E; }
+
+#sub-purple-motif .ring--1 { --ring-i: 0; --lag: 0;    --gain: 1;      }
+#sub-purple-motif .ring--2 { --ring-i: 1; --lag: 0.06; --gain: 1.0638; }
+#sub-purple-motif .ring--3 { --ring-i: 2; --lag: 0.12; --gain: 1.1364; }
+#sub-purple-motif .ring--4 { --ring-i: 3; --lag: 0.18; --gain: 1.2195; }
+#sub-purple-motif .ring--5 { --ring-i: 4; --lag: 0.24; --gain: 1.3158; }
+#sub-purple-motif .ring--6 { --ring-i: 5; --lag: 0.30; --gain: 1.4286; }
+#sub-purple-motif .ring--7 { --ring-i: 6; --lag: 0.36; --gain: 1.5625; }
+#sub-purple-motif .ring--8 { --ring-i: 7; --lag: 0.42; --gain: 1.7241; }
+
+/* Radial breath + a hair of lateral sway, so neighbouring rings slide very
+   slightly against each other instead of moving as one solid disc. */
+@keyframes ring-ripple {
+  0%   { scale: 1;     translate: 0 0; }
+  25%  { scale: 1.028; translate: 0.55% -0.45%; }
+  50%  { scale: 1.006; translate: 0 0.6%; }
+  75%  { scale: 0.976; translate: -0.55% -0.3%; }
+  100% { scale: 1;     translate: 0 0; }
+}
+
+/* var(--o) inside keyframes resolves per element, so the shimmer automatically
+   rides whatever openness this ring currently has. */
+@keyframes ring-shimmer {
+  0%   { opacity: calc(0.34 + 0.66 * var(--o)); }
+  50%  { opacity: calc((0.34 + 0.66 * var(--o)) * 0.84); }
+  100% { opacity: calc(0.34 + 0.66 * var(--o)); }
+}
+
+/* The soft ball behind the rings. It breathes on a much longer period than the
+   rings do, which is what stops the whole puff pulsing as one. */
+#sub-green-motif .sub-glow,
+#sub-purple-motif .sub-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: calc(0.12 + 0.88 * var(--petal-open, 1));
+  transform: scale(calc(0.72 + 0.28 * var(--petal-open, 1)));
+  animation: glow-breathe var(--glow-dur, 13s) ease-in-out infinite;
+  animation-play-state: var(--puff-anim, running);
+  animation-delay: var(--puff-phase, 0s);
+}
+
+@keyframes glow-breathe {
+  0%   { scale: 1; }
+  50%  { scale: 1.045; }
+  100% { scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sub,
+  .sub use,
+  #sub-green-motif .ring,
+  #sub-purple-motif .ring,
+  #sub-green-motif .sub-glow,
+  #sub-purple-motif .sub-glow {
     animation: none;
   }
 }
@@ -569,6 +1208,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .branch,
   .branch .branch__stem,
+  .branch .branch__stem-path,
   .branch .branch__head,
   .branch .subs {
     animation: none;
@@ -588,6 +1228,10 @@ body {
    vector, rotation, duration and a negative delay so the field is already
    in motion on the first frame rather than all starting together.
 --------------------------------------------------------------------------- */
+/* Two of these exist -- .bubbles--green and .bubbles--purple, built by
+   bubbles.js and bubbles-purple.js. The fields are separate scripts with
+   separate layouts, but they share this layer style and the drift keyframes
+   below so both sides behave identically. */
 .bubbles {
   position: absolute;
   inset: 0;
@@ -598,70 +1242,334 @@ body {
      the scene, not against themselves: a percentage translate resolves against
      the element's own box, which would move a 40px bubble by a couple of px. */
   container-type: size;
+  /* Fades with the dandelions when .is-faded is applied; the inner bubble
+     animations are untouched, the layer as a whole just eases to transparent. */
+  transition: opacity 0.8s ease-in-out;
 }
 
-/* The PNGs are drawn exactly as authored -- no filter, no tint, no opacity
-   multiplier. Only the drift cycle's fade touches their opacity. */
-.bubble {
+/* --- 2nd-state (bloom) bubble field ---------------------------------------
+   A second, sparser field (bubbles.js / bubbles-purple.js build one per colour)
+   that belongs to the BLOOMED view only. It is hidden in state 1, eases in when
+   labels.js lights it as the bloom settles, and eases back out on the drill
+   (state 3) and the return to state 1. The whole LAYER is gated here; the inner
+   drift on each bubble is untouched, so once lit the field breathes exactly like
+   the ambient one. It deliberately carries neither .bubbles--green nor
+   .bubbles--purple, so the state-1 fade-out (.is-faded) never reaches it. */
+.bubbles--phase2 {
+  opacity: 0; /* hidden until the bloom lights it */
+}
+.bubbles--phase2.is-lit {
+  opacity: 1;
+}
+
+/* --- 3rd-state (drill) bubble field ---------------------------------------
+   The colour-matched halo that spawns around the CENTRED dandelion once it has
+   grown in (bubbles.js / bubbles-purple.js each build one and light it on the
+   `dandelion:grown` event only when their own colour is the drilled plant). Same
+   layer gate as phase 2: hidden until lit, then the 0.8s opacity transition eases
+   it in around the plant while each bubble drifts up on its own phase. */
+.bubbles--phase3 {
+  opacity: 0;
+}
+.bubbles--phase3.is-lit {
+  opacity: 1;
+}
+
+/* --- Motif bubbles (state 2, matching the reference) ----------------------
+   The bloom-time field renders each bubble as a small copy of the dandelion
+   puff (the same #sub-*-motif the sub-branches use) at a FIXED authored spot --
+   no fade cycle, no migration -- so the arrangement reads exactly as placed.
+   --puff-anim is pinned to paused for this field only, so the little puffs hold
+   still (the reference is a static composition) and thousands of ring dots are
+   not animated. */
+.bubbles--motif {
+  --puff-anim: paused;
+}
+/* In the bloomed view the puff-motif field IS the bubble field (as in the
+   reference), so the ambient state-1 dots step aside while it is lit -- they
+   ease back in on the return to state 1. */
+.app:has(.bubbles--motif.is-lit) .bubbles--green,
+.app:has(.bubbles--motif.is-lit) .bubbles--purple {
+  opacity: 0;
+}
+.bubbles--motif .bubble-slot {
+  opacity: 1;
+  animation: none;
+}
+.bubble-motif {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  overflow: visible; /* the soft glow reaches the slot's edge */
+}
+/* A few purple bubbles are bright magenta in the reference -- push the violet
+   puff toward hot pink. */
+.bubble--magenta {
+  filter: hue-rotate(34deg) saturate(2) brightness(1.1);
+}
+
+/* Each bubble is two elements because it runs two motions at once, and a
+   single element cannot: both would be animating `transform` and the later
+   rule would simply win.
+
+   The slot owns the group cycle -- fade in, hold, fade out, with a slow lift
+   across the whole visible window. Every member of a pattern shares its
+   timing, so the group arrives and leaves as one shape.
+
+   The image inside owns the wave: a continuous, gentle orbit that keeps
+   running whether or not the slot is showing it. That is what stops a group
+   sitting frozen while it is visible. */
+.bubble-slot {
   position: absolute;
   left: var(--bx);
   top: var(--by);
   width: var(--bs);
-  height: auto;
   margin: calc(var(--bs) / -2) 0 0 calc(var(--bs) / -2); /* --bx/--by are its centre */
   opacity: 0;
   will-change: transform, opacity;
-  animation-name: bubble-drift;
+  animation-name: bubble-cycle;
   animation-duration: var(--bdur);
   animation-delay: var(--bdelay);
   animation-iteration-count: infinite;
-  /* eased both ways, so the one-second ramps arrive and leave softly instead
-     of switching on and off at a constant rate */
+  /* eased both ways, so the ramps arrive and leave softly instead of switching
+     on and off at a constant rate */
   animation-timing-function: ease-in-out;
 }
 
-/* Fades in, wanders along a slightly bowed path, fades out. The midpoint is
-   deliberately off the straight line between start and end so no bubble
-   travels in a dead-straight line. */
+/* The PNGs are drawn exactly as authored -- no filter, no tint, no opacity
+   multiplier. Only the slot's fade touches their opacity. */
+.bubble {
+  display: block;
+  width: 100%;
+  height: auto;
+  will-change: transform;
+  animation-name: bubble-wave;
+  animation-duration: var(--wdur);
+  animation-delay: var(--wdelay);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* Static mode: a field placed to a fixed composition, not animated. The slot
+   still positions each bubble from --bx/--by/--bs exactly as above; this only
+   holds every bubble fully shown and still, so the layout reads as authored.
+   Removing this class (and restoring the animated fields) is all it takes to
+   bring the motion back. */
+.bubbles--static .bubble-slot,
+.bubbles--static .bubble {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* The purple field works the other way round from the green one.
+
+   Green: the slot fades a whole group in and out on its turn, and the image
+   inside waves. The group is the unit.
+
+   Purple: nothing gates the group. The slot only carries the slow wave, so the
+   cluster sits where it is and drifts very gently; each image inside fades in,
+   holds, and fades out on its own loop, with its own duration and a delay
+   scattered across that loop. So a purple cluster is always present and always
+   changing, rather than arriving and leaving as a block.
+
+   Because every bubble keeps its own time, any two purple bubbles can be lit
+   together -- which is why the purple layout is spaced as one global
+   non-overlapping set rather than pattern by pattern. */
+.bubbles--purple .bubble-slot {
+  opacity: 1;
+  animation-name: bubble-wave;
+  animation-duration: var(--wdur);
+  animation-delay: var(--wdelay);
+}
+
+.bubbles--purple .bubble {
+  opacity: 0;
+  animation-name: bubble-twinkle;
+  animation-duration: var(--tdur);
+  animation-delay: var(--tdelay);
+}
+
+/* A STATIC purple field must stay fully shown and still. The rule above starts
+   each purple bubble at opacity 0 to twinkle in, driven by --tdur; a static
+   field never sets --tdur, so the fade never runs and the bubbles are stuck
+   invisible. This override (two classes on the wrap -> higher specificity than
+   the single-class rule above, and it also beats the .bubbles--static block,
+   which loses on source order) restores them: shown, still, no animation. */
+.bubbles--static.bubbles--purple .bubble-slot,
+.bubbles--static.bubbles--purple .bubble {
+  opacity: 1;
+  animation: none;
+  transform: none;
+}
+
+/* --- Drift animation (green + purple) --------------------------------------
+   The bubbles no longer sit still: each softly fades in, drifts a hair in its
+   own direction, holds a good while, then fades out -- slow, smooth and
+   premium, never blinking. Per-bubble --ddur / --ddelay / --dx / --dy (set in
+   bubbles.js and bubbles-purple.js) desync the field so no two share a phase or
+   a path. Placement (--bx/--by/--bs) is untouched; only opacity and a tiny
+   translate move, and the drift is measured in cq units so it stays a small
+   fraction of the scene at any size.
+
+   These rules sit AFTER the cycle / wave / twinkle rules above on purpose: the
+   purple field still carries .bubbles--purple, and at equal specificity source
+   order lets .bubbles--drift win -- so in both fields the slot owns the whole
+   motion and the image inside is held still. */
+.bubbles--drift .bubble-slot {
+  animation-name: bubble-drift;
+  animation-duration: var(--ddur, 12s);
+  animation-delay: var(--ddelay, 0s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.bubbles--drift .bubble {
+  animation: none; /* the art holds still; the slot carries fade + drift */
+  opacity: 1;
+  transform: none;
+}
+
+/* Soft, slow lifecycle: ease in over ~18%, hold visible, ease out over ~18%,
+   with a gentle continuous drift and the faintest scale so it breathes rather
+   than pops. Opacity is 0 at both ends, so the loop seam -- where the tiny
+   transform resets -- is never seen. */
 @keyframes bubble-drift {
-  /* One turn of the pattern cycle set in bubbles.js (3 patterns x 5s = 15s).
-     A bubble is up for the first 30% of it -- 1.8s easing in, 1.05s held,
-     1.65s easing out -- then sits out the rest while the other two patterns
-     take their turns.
-
-     That 4.5s window has to stay shorter than one pattern's 5s turn (jitter
-     included). Overrun it and consecutive patterns are on screen together,
-     and since each pattern is only spaced against its own bubbles, that shows
-     up immediately as overlapping bubbles.
-
-     The drift completes inside the visible window and then holds, so the
-     movement is seen rather than spent while the bubble is transparent.
-
-     The end scale is deliberately close to 1: every bit of swell, like every
-     bit of drift, has to be paid for as clearance between neighbours. */
   0% {
     opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.94) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(0.96);
   }
-  12% {
-    opacity: 1; /* the asset's own alpha, untouched */
-  }
-  19% {
+  18% {
     opacity: 1;
   }
-  30% {
-    opacity: 0;
-    transform: translate3d(var(--bdx), var(--bdy), 0) scale(1.06) rotate(var(--brot));
+  82% {
+    opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translate3d(var(--bdx), var(--bdy), 0) scale(1.06) rotate(var(--brot));
+    transform: translate3d(var(--dx, 0), var(--dy, 0), 0) scale(1.02);
+  }
+}
+
+/* Honour reduced-motion: hold every drifting bubble fully shown and still.
+   Matches the specificity of the .bubbles--drift rules above and comes later,
+   so it reliably wins inside the query. */
+@media (prefers-reduced-motion: reduce) {
+  .bubbles--drift .bubble-slot,
+  .bubbles--drift .bubble {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* One bubble's own life, against the ~15s --tdur set in bubbles-purple.js:
+   3s easing in, 1.5s held, 3s easing out, then 7.5s resting.
+
+   The ramps are the slow part on purpose -- a short fade at this size reads as
+   a blink rather than a breath. The rest is longer than the whole visible part
+   for a reason too: lengthening the ramps without lengthening the rest would
+   leave every bubble showing a far greater share of the time, and the field
+   would read as denser even though not one bubble had been added. */
+@keyframes bubble-twinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  20% {
+    opacity: 1; /* the asset's own alpha, untouched */
+  }
+  30% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
+/* The group's turn on screen: rises into view, holds, and leaves. */
+@keyframes bubble-cycle {
+  /* One turn of the pattern cycle set in bubbles.js (7 patterns x 4.5s =
+     31.5s). A bubble is up for the first 19.05% of it -- 1.6s easing in, 2.8s
+     held, 1.6s easing out -- then sits out the rest while the other six
+     patterns take their turns.
+
+     That 6s window is deliberately longer than one pattern's 4.5s turn. The
+     next group therefore starts rising 1.5s before this one has finished
+     leaving, so the scene never empties between patterns; at the crossover two
+     full groups are on screen at once.
+
+     Which is exactly why the layout spaces every pattern against the pattern
+     either side of it in the cycle, not only against its own bubbles. Widen
+     this window past 2 x STEP and three patterns would coincide -- more than
+     the layout was spaced for, and bubbles would start overlapping.
+
+     The lift is spread across the visible window rather than finished early,
+     so the group is still rising as it fades -- the wave on the image inside
+     carries the rest of the movement.
+
+     The end scale is deliberately close to 1: every bit of swell, like every
+     bit of lift and wave, has to be paid for as clearance between
+     neighbours. */
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.94);
+  }
+  5.08% {
+    opacity: 1; /* the asset's own alpha, untouched */
+  }
+  13.97% {
+    opacity: 1;
+  }
+  19.05% {
+    opacity: 0;
+    transform: translate3d(0, var(--blift), 0) scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, var(--blift), 0) scale(1.06);
+  }
+}
+
+/* The wave: a slow elliptical orbit around the bubble's own position, with a
+   little rotation at the extremes. Four stops rather than two, so it circles
+   rather than sliding back and forth along one line.
+
+   Members of a pattern share --wdur and very nearly share --wdelay, so a group
+   sways as one body; --wx/--wy/--wrot vary slightly per bubble so it is not a
+   rigid sheet. That shared phase is also what lets the layout pack a group
+   tightly -- neighbours in the same group barely move relative to each other,
+   however far they both travel. */
+@keyframes bubble-wave {
+  0%,
+  100% {
+    transform: translate3d(calc(-1 * var(--wx)), 0, 0) rotate(calc(-1 * var(--wrot)));
+  }
+  25% {
+    transform: translate3d(0, calc(-1 * var(--wy)), 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(var(--wx), 0, 0) rotate(var(--wrot));
+  }
+  75% {
+    transform: translate3d(0, var(--wy), 0) rotate(0deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .bubble-slot,
   .bubble {
     animation: none;
+  }
+  /* both fields: whichever element carries the fade must be left showing */
+  .bubble-slot,
+  .bubble {
     opacity: 1;
   }
 }
@@ -676,7 +1584,7 @@ body {
 --------------------------------------------------------------------------- */
 .app__content {
   font-size: calc(min(100vw, 100vh * 9 / 20) / 100);
-  font-family: Arial, Helvetica, "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans);
 }
 
 .intro {
@@ -758,6 +1666,7 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 2.2%;
+  margin-top: 2.2em; /* ~12px of breathing room below the "green IT." paragraph */
 }
 
 .intro__tagline {
@@ -766,6 +1675,12 @@ body {
   font-weight: 700;
   line-height: 1.24;
   color: var(--intro-navy);
+}
+
+.intro__divider {
+  flex: 0 0 2px;
+  align-self: stretch;
+  background: var(--intro-navy);
 }
 
 .intro__note {
@@ -781,4 +1696,264 @@ body {
   inset: 0;
   z-index: 2;
   background: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Info-box popover (infobox.js). The PNG is used as-is; JS sets position, size,
+   transform-origin (the card's circle) and the grow transform per click. Purely
+   visual -- never catches input, so it can't disturb any interaction.
+--------------------------------------------------------------------------- */
+/* The positioned parent that holds BOTH the PNG and the green text overlay.
+   No overflow/mask/filter here, so the text is never clipped or pushed behind
+   the PNG; the grow transform/opacity ride the parent, moving both together. */
+.infobox-fx {
+  position: absolute;
+  /* The card is placed by `translate`, never by left/top -- infobox.js re-pins it
+     to the swaying flower on every frame, and left/top would put a full layout
+     pass in that loop. These stay at the origin so `translate` is the whole
+     story. */
+  left: 0;
+  top: 0;
+  z-index: 6; /* above the dandelions (1) and the intro layer (2) */
+  pointer-events: none;
+  /* Promote once, up front: the card then owns a compositor layer for its whole
+     short life, so the pop and the per-frame re-pin are both layer transforms
+     with no repaint. backface-visibility pins it to its own layer in the older
+     WebKit path too. */
+  will-change: transform, translate, opacity;
+  backface-visibility: hidden;
+  /* Simple, smooth pop: fade in while easing up from a small scale, anchored on the
+     card's circle (transform-origin set inline by infobox.js) so it grows gently
+     out of the clicked sub-branch. The scale rides `transform`, which composes with
+     the `translate` follow() re-pins to the swaying flower every frame. */
+  animation: infobox-pop 3200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* One clean motion -- a soft grow + fade, ease-out so it settles gently. */
+@keyframes infobox-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* The PNG sits on the LOWER layer. Absolutely positioned so its z-index applies
+   as a sibling of the text overlay; it still fills the parent at the PNG ratio. */
+.infobox-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto; /* keep the PNG's proportions -- no stretch, no crop */
+  z-index: 20;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* The card carries meaning (it is the answer to the click), so under reduced
+   motion it still appears -- it just stops travelling. The scale is dropped to
+   a plain cross-fade; the wording arrives with it rather than one beat later. */
+@media (prefers-reduced-motion: reduce) {
+  .infobox-fx {
+    /* Drop the grow -- just a plain fade in, fully formed. */
+    animation: infobox-fade 0.2s ease-out both !important;
+    transform: none !important;
+  }
+
+  .infobox-label {
+    translate: none !important;
+    transition: opacity 0.2s ease-out !important;
+  }
+}
+
+/* Reduced-motion fallback: the card simply fades in, fully formed. */
+@keyframes infobox-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* The selected green wording, on the HIGHER layer -- always above the PNG,
+   centred exactly on its circular part. Never catches input. No stacking
+   context beyond its own z-index (only a centring translate), so it stays on
+   top throughout the popup grow. */
+.infobox-label {
+  position: absolute;
+  z-index: 30;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  /* The selected-green. This wording belongs TO the card, so it arrives with it:
+     the green appears at the moment the card pops and not one frame before. (The
+     sub-branch's own label stays white right up to that point -- labels.js no
+     longer pre-marks it; see .dlabel-selected below.) White is not an option
+     here, in any case: it would be invisible against the PNG's white circle. */
+  color: #2bff8f;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+  white-space: normal;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Space-to-label overlay (labels.js). One centred white label per circle,
+   pinned over its circle every frame (labels.js sets left/top/width/height/
+   font-size/scale), so the text moves and breathes with the dandelion.
+--------------------------------------------------------------------------- */
+/* Labels are SVG <text> children of their own circle (a sub label inside its
+   sub-slot <g>; a head label at the centre of the .subs layer), so they inherit
+   every transform natively and move + scale with the circle -- no overlay layer,
+   no per-frame re-pinning, no lag. White, centred, non-interactive.
+
+   Each stays hidden through the ENTIRE bloom; labels.js adds .dlabel-shown once
+   every petal has reached its final place, and it fades + gently scales in. The
+   reveal scale is uniform and about the text's own centre (transform-box:
+   fill-box), so it composes with the circle's uniform scale and never stretches
+   or fights the petal transform. */
+.dlabel-svg {
+  fill: #ffffff;
+  font-family: var(--font-sans);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.86);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 1.3s ease-in-out, transform 1.3s ease-in-out;
+}
+
+.dlabel-svg--main {
+  font-weight: 700;
+  letter-spacing: 0.15px;
+}
+
+.dlabel-svg--sub {
+  font-weight: 400;
+}
+
+.dlabel-svg.dlabel-shown {
+  opacity: 1;
+  transform: none;
+}
+
+/* The clicked sub-branch's label turns green to mark it as selected -- but only
+   from the moment the info box exists (infobox.js marks it on spawn, and clears
+   it again when the card goes). Nothing greens a label ahead of the card, so the
+   colour always reads as the card's arrival rather than a hint of it. Placed
+   after the base fill so it wins by source order. Colour only -- no outline. */
+.dlabel-svg.dlabel-selected {
+  fill: #2bff8f;
+}
+
+/* ---------------------------------------------------------------------------
+   Drill-down: staggered sub-branch reveal.
+
+   Circles carry no labels for now. The staged spawn (tail grow, circle scale-in)
+   is driven from drilldown.js on free properties; only the sub reveal needs CSS.
+--------------------------------------------------------------------------- */
+/* Shift the spawned dandelion HORIZONTALLY toward the centre. drilldown.js adds
+   .is-centered to the clicked branch (while it is still faded out, so the move is
+   never seen). ONLY `left` changes -- the box keeps its original vertical anchor
+   (the base `bottom`), its width and its aspect-ratio -- so the vertical position,
+   the tail height, the overall dandelion height and the top/bottom alignment are
+   all unchanged. Only the sideways position moves, so the MAIN CIRCLE lands at the
+   horizontal centre (50% of the screen width) while staying at its original height.
+   The offsets are each branch's own head-centre geometry solved for a 50% x-target,
+   so they hold at any screen size (the app is always 9:20).
+
+   green : head centre sits 35.73% of the screen width from the box's left edge,
+           so box_left = 50% - 35.73% = 14.27%.
+   purple: head centre sits 36.65% from the box's left edge, so box_left =
+           50% - 36.65% = 13.35%. */
+.branch--green.is-centered {
+  left: 14.27%;
+  /* Pivot the spawn grow (and the idle sway) at the point where the stem meets
+     the BOTTOM of the screen -- the same anchor the base branch uses. Scaling
+     about the bottom keeps the tail's foot pinned to the bottom edge, so the
+     tail GROWS UP FROM THE BOTTOM (not out from the middle) and the circle rises
+     into place above it. */
+  transform-origin: 24.6% 89%;
+}
+
+.branch--purple.is-centered {
+  left: 13.35%;
+  transform-origin: 5.8% 100%; /* where the purple stem meets the bottom */
+}
+
+/* Drilled state: the plant moves as ONE rigid unit. Only the whole-branch sway
+   runs here (it rotates the head, tail and sub-branches together about the base).
+   Every PER-PART idle motion is suspended in the centred view -- the head/subs
+   breathing (bloom) + vertical lift, and the stem's rise + snake -- because in
+   this view they pulled the pieces apart from each other:
+     - the head's bloom scaled the ball OUT into the (revealed) sub-branches;
+     - the head's lift and the stem's rise ran on different tracks, so a gap
+       opened between the circle and the tail;
+     - and because the grow suspends only the head's animation, handing it back
+       at the end restarted bloom/lift from their 0% pose -- which snapped the
+       circle down onto the tail and left the subs drifting on their own.
+   With them all off, the circle, tail and sub-branches travel together, there is
+   no post-grow jump, and the ball never grows into the puffs. States 1 and 2 are
+   untouched: this is scoped to .is-centered. */
+.branch--green.is-centered .branch__head,
+.branch--green.is-centered .subs,
+.branch--purple.is-centered .branch__head,
+.branch--purple.is-centered .subs {
+  animation: none;
+  scale: none;     /* no bloom -> the ball holds its size, never balloons out */
+  translate: none; /* no lift  -> no vertical snap onto the tail */
+}
+
+.branch--green.is-centered .branch__stem,
+.branch--purple.is-centered .branch__stem {
+  animation: none; /* no rise */
+  scale: none;
+}
+
+.branch--green.is-centered .branch__stem-path,
+.branch--purple.is-centered .branch__stem-path {
+  animation: none; /* no snake wiggle -> the tail holds its shape under the ball */
+}
+
+/* Sub reveal, driven purely by classes drilldown.js toggles on the slot.
+
+   pre-reveal: the sub sits invisible and shrunk, with NO transition, so it can
+   be armed while the branch is still faded out. reveal: it eases to full size
+   and opacity; the per-slot transition-delay (set inline) staggers the pop.
+   Scale/opacity ride the inner .sub (which is transform-box: fill-box, origin
+   centre), so the pop is about the puff's own centre and never disturbs the
+   slot's placement transform or the ongoing sub-drift. */
+.sub-prereveal .sub {
+  opacity: 0;
+  scale: 0.68;
+  --petal-open: 0; /* rings start gathered; see the @property block above */
+}
+
+.sub-reveal .sub {
+  opacity: 1;
+  scale: 1;
+  --petal-open: 1;
+  /* Slower, softer pop -- a long ease-out settle keeps each sub premium. The
+     curve is a pure decelerate (no ease-in), so the puff is already moving on
+     the first frame and simply slows into place -- that is what removes the
+     little hitch at the start of the old symmetric ease.
+
+     --petal-open runs longer than the pop and lands last on purpose: the puff
+     arrives, and the rings inside it are still opening outward as it settles.
+     The inline per-slot transition-delay drilldown.js sets applies to all three
+     together, so the whole stagger stays in one place. */
+  transition: opacity 0.62s cubic-bezier(0.22, 0.61, 0.36, 1),
+              scale 0.62s cubic-bezier(0.22, 0.61, 0.36, 1),
+              --petal-open 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Slots with no child at this level stay fully out of the way. */
+.sub-hidden {
+  pointer-events: none;
+}
+
+.sub-hidden .sub {
+  opacity: 0;
 }
