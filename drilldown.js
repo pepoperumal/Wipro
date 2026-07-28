@@ -47,17 +47,15 @@
   // Slow, premium timeline (ms), measured from the end of the fade-out. Each
   // stage waits for the previous one to FINISH (plus a clear gap), so the tail,
   // the circle and the subs never grow together -- they arrive strictly in turn.
-  // The staged grow is halved from the original slower timeline so the info box /
-  // text pops in ~2x earlier: the tail, circle and subs all arrive at double speed,
-  // so `dandelion:grown` (which hands off to the label fade + card pop) fires about
-  // twice as soon. FADE_MS is left matched to the shared 0.8s CSS fade-out so the
-  // old dandelions have fully faded before the new plant starts growing.
+  // Third-state entrance: the stem and main circle arrive in long, separate
+  // stages, then the sub-branches follow. FADE_MS stays matched to the shared
+  // 0.8s fade-out so the old dandelions are fully gone before growth begins.
   const FADE_MS = 800;         // matches the CSS opacity transition (fade-out)
-  const STEM_MS = 1500;        // (a) tail draws up from its fixed bottom anchor (1.5s)
-  const HEAD_DELAY_MS = 1650;  // circle waits until the tail has finished (+150ms gap)
-  const HEAD_MS = 1000;        // (b) main circle grows/eases in at the centre (1s)
-  const BRANCH_MS = 2650;      // gentle overall grow, ending exactly as the circle lands
-  const SUBS_START_MS = 2825;  // (c) subs begin only after the circle finishes (+175ms gap)
+  const STEM_MS = 3600;        // (a) tail draws slowly from its fixed bottom anchor
+  const HEAD_DELAY_MS = 3850;  // circle waits until the tail has fully settled
+  const HEAD_MS = 2200;        // (b) main circle grows slowly at the centre
+  const BRANCH_MS = 3600;      // parent growth matches the tail's gentle pace
+  const SUBS_START_MS = 6300;  // (c) subs begin only after the circle finishes
   const REVEAL_LEAD_MS = 75;   // small pause before the first sub
   const REVEAL_STEP_MS = 250;  // 0.25s stagger between successive subs
   // After the grow: labels.js fades the labels in (~1.3s) then the info box pops

@@ -27,7 +27,10 @@
 (() => {
   "use strict";
 
-  const PNG = "InfoBox.png"; // exact on-disk filename (case-sensitive-safe)
+  const PNGS = {
+    green: "InfoBox.png",
+    purple: "PurpleInfobox.png",
+  };
   // circle centre + diameter as fractions of the PNG (measured from the asset)
   const CX = 0.139, CY = 0.832, CD = 0.274;
   const RATIO = 375 / 453;        // PNG height / width
@@ -214,7 +217,7 @@
     // fx, is never mirrored).
     const img = document.createElement("img");
     img.className = "infobox-img";
-    img.src = PNG;
+    img.src = PNGS[color] || PNGS.green;
     img.alt = "";
     img.decoding = "async";
     img.draggable = false;
@@ -233,6 +236,7 @@
       label.style.top = vcy * H + "px";
       label.style.width = cd * 1.15 + "px";
       label.style.fontSize = cd * (color === "purple" ? 0.088 : 0.12) + "px";
+      label.style.color = color === "purple" ? "#9C73FF" : "#0B5446";
       lines.forEach((ln, i) => {
         if (i) label.appendChild(document.createElement("br"));
         label.appendChild(document.createTextNode(ln));

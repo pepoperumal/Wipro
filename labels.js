@@ -76,11 +76,11 @@
     purple: {
       head: ["ECO EYE"],
       subs: {
-        p1: ["Help Customers", "Become Green"],
-        p2: ["Widen Circle", "of Influence"],
+        p1: ["Help", "Customers", "Become", "Green"],
+        p2: ["Widen", "Circle of", "Influence"],
         p3: ["Transparent", "Reporting &", "Risk Planning"],
         p4: ["Make Wipro A", "Ecologically", "Surplus", "Organisation"],
-        p5: ["Wipro Launches", "Eco Chapters"],
+        p5: ["Wipro", "Launches Eco", "Chapters"],
       },
     },
   };
@@ -89,7 +89,7 @@
   // own local units (the motif radius = 1), so they scale with the petal. Purple
   // subs are SMALLER than green -- their wording is longer -- so the text fits
   // and reads cleanly.
-  const FS = { head: 10.5, subGreen: 0.235, subPurple: 0.172 };
+  const FS = { head: 10.5, subGreen: 0.235, subPurple: 0.235 };
   const LH = 1.14; // line-height factor
 
   // Bloom timing (ms), slightly different per colour so the two never march in
@@ -100,12 +100,12 @@
   // derived from these (see follow()), so the label reveal auto-tracks the timing;
   // a slower inward just lands the whole entrance a touch later.
   const BLOOM = {
-    green:  { inward: 2600, outward: 3250, stagger: 325, cycle: 4500 },
-    purple: { inward: 2800, outward: 3600, stagger: 360, cycle: 5000 },
+    green:  { inward: 2600, outward: 4800, stagger: 325, cycle: 4500 },
+    purple: { inward: 2800, outward: 5300, stagger: 360, cycle: 5000 },
   };
   const REVEAL_GAP = 200; // pause after the last petal lands before the driver stops
-  const REVEAL_LEAD = 750; // fade the text in this much BEFORE the last petal fully
-                            // lands (it is ~open by then), so it no longer feels late
+  const REVEAL_LEAD = 0;   // reveal only after the final petal has landed, so a
+                            // sub-label never appears mid-flight
   const TEXT_MS = 1300;   // CSS label reveal (fade + scale) duration -- see styles.css
   const IDLE_MS = 10000;  // after the bloom settles, revert to state 1 after this
                           // long with no interaction
@@ -115,7 +115,7 @@
   // we hand the petals back.
   const FADE_MS = 800;
   const HEAD = { x: 50, y: 50 }; // head centre in the subs' 0..100 viewBox
-  const SMIN = 0.55;             // petal scale when fully collapsed at the centre
+  const SMIN = 0.12;             // petal scale when fully collapsed at the centre
 
   const easeInOut = (x) =>
     x <= 0 ? 0 : x >= 1 ? 1 : x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
@@ -164,6 +164,8 @@
     const text = document.createElementNS(NS, "text");
     text.setAttribute("class", "dlabel-svg dlabel-svg--" + kind);
     text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "middle");
+    text.setAttribute("alignment-baseline", "middle");
     text.setAttribute("font-size", fs);
     const lh = fs * LH;
     const n = lines.length;
@@ -552,4 +554,3 @@
     document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
-

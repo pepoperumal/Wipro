@@ -1154,9 +1154,9 @@ body {
    step; purple has 8 and needs a narrow one, or its outermost ring would still
    be shut when the petal is open. Purple sets no --ring-a, so it falls back to
    1 and every purple ring stays as solid as it was. */
-#sub-green-motif .ring--1 { --ring-i: 0; --lag: 0;    --gain: 1;      --ring-a: 1;    }
-#sub-green-motif .ring--2 { --ring-i: 1; --lag: 0.16; --gain: 1.1905; --ring-a: 0.75; }
-#sub-green-motif .ring--3 { --ring-i: 2; --lag: 0.32; --gain: 1.4706; --ring-a: 0.5;  }
+#sub-green-motif .ring--1 { --ring-i: 0; --lag: 0;    --gain: 1;      --ring-a: 0.30; }
+#sub-green-motif .ring--2 { --ring-i: 1; --lag: 0.16; --gain: 1.1905; --ring-a: 0.60; }
+#sub-green-motif .ring--3 { --ring-i: 2; --lag: 0.32; --gain: 1.4706; --ring-a: 0.92; }
 
 /* The outermost green ring (ring--3, the LAST ring) is lemon-green on the green
    SUB-BRANCHES. It reads a variable that only .branch--green sets, and CSS fill
@@ -1315,6 +1315,27 @@ body {
   opacity: 1;
   animation: none;
 }
+
+/* State-2 motif bubbles use the same short pre-fade movement and grouped cycle
+   as the first-state bubbles. Their authored positions remain the anchors, so
+   the movement stays within the clear space around each bubble. */
+.bubbles--motif .bubble-motif-slot {
+  animation-name: bubble-drift;
+  animation-duration: var(--ddur, 14s);
+  animation-delay: var(--ddelay, 0s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Collision response only: it does not alter the regular bubble cycle. */
+.bubble-slot.bubble-collision {
+  animation: bubble-collision-out 0.42s ease-in both !important;
+}
+
+@keyframes bubble-collision-out {
+  to { opacity: 0; transform: scale(0.86); }
+}
+
 .bubble-motif {
   display: block;
   width: 100%;
@@ -1459,11 +1480,18 @@ body {
     opacity: 0;
     transform: translate3d(0, 0, 0) scale(0.96);
   }
-  18% {
+  14% {
     opacity: 1;
   }
-  82% {
+  70% {
     opacity: 1;
+  }
+  /* A gentle two-second drift happens immediately before the fade, rather than
+     fading a stationary bubble. The small offset is bounded by the placement
+     pool's breathing room, so neighbours never meet. */
+  84% {
+    opacity: 1;
+    transform: translate3d(var(--dx, 0), var(--dy, 0), 0) scale(1.02);
   }
   100% {
     opacity: 0;
@@ -1809,8 +1837,8 @@ body {
      sub-branch's own label stays white right up to that point -- labels.js no
      longer pre-marks it; see .dlabel-selected below.) White is not an option
      here, in any case: it would be invisible against the PNG's white circle. */
-  color: #2bff8f;
-  font-family: var(--font-sans);
+  color: #0B5446;
+  font-family: "Cabinet Grotesk", Arial, Helvetica, "Helvetica Neue", sans-serif;
   font-weight: 400;
   line-height: 1.14;
   letter-spacing: 0.01em;
@@ -1851,6 +1879,10 @@ body {
 
 .dlabel-svg--sub {
   font-weight: 400;
+  /* Sub-labels inherit every movement from their parent .sub-slot. Keep their
+     own transform fixed so their reveal cannot add a separate pop or snap. */
+  transform: none;
+  transition: opacity 0.85s ease-out;
 }
 
 .dlabel-svg.dlabel-shown {

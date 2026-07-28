@@ -17,7 +17,7 @@
  */
 (() => {
   "use strict";
-  const ASSETS = ["Group.png"];
+  const ASSETS = ["Group.png", "sub-purple.svg"];
 
   // ---- geometry helpers (shared by all three fields) ------------------------
   const YW2 = 2.2222; // 1% height == 2.22% width (9:20 scene) -- for round distances
@@ -139,7 +139,7 @@
     target: 26,          // sparse -- a light frame, not a fill
     gap: 5.5,
     maxtries: 500000,
-    ts: [0],
+    ts: [0, 1, 0],
     sizes: AMB_SIZES,
     accept: accept1,
   });
@@ -151,7 +151,7 @@
     target: 16,
     gap: 4.2,
     maxtries: 260000,
-    ts: [0],
+    ts: [0, 1, 0],
     sizes: HALO_SIZES,
     accept: acceptHalo,
   });
@@ -208,7 +208,7 @@
       seed: 40000,
       target: 52,
       gap: 4.0,
-      ts: [0],
+      ts: [0, 1, 0],
       sizes: HALO_SIZES,
       accept: (x, y) =>
         ell(x, y, 50, 52, 28, 17) && !ko3Head(x, y) && !ko3Tail(x, y) && notText(x, y),
@@ -218,7 +218,7 @@
       seed: 9500,
       target: 14,
       gap: 3.8,
-      ts: [0],
+      ts: [0, 1, 0],
       sizes: HALO_SIZES,
       accept: (x, y) => x >= 66 && x <= 97 && y >= 4 && y <= 27,
     }),
@@ -228,7 +228,7 @@
   // Each field gets a fixed POOL of mutually non-overlapping candidate spots that
   // all pass the field's `accept` guard, so every relocation target is already
   // clear of the plants + text and no two bubbles can overlap.
-  const DRIFT = () => 0.5 + Math.random() * 0.4; // 0.5..0.9 cqw
+  const DRIFT = () => 2.0 + Math.random() * 1.2; // 2.0..3.2 cqw -- clearly visible motion
   const overlaps = (a, b, margin) => {
     const dx = a.x - b.x, dy = (a.y - b.y) * YW2;
     const min = (a.s + b.s) / 2 + margin;
@@ -262,16 +262,81 @@
     return pool;
   };
 
+  // Every three bubbles receive one small, one medium and one large scale, then
+  // the order is shuffled. This gives the field genuine variation while avoiding
+  // long runs of identical-looking bubbles.
+  const shuffledSizeScales = (count) => {
+    const out = [];
+    while (out.length < count) {
+      const group = [0.72, 1, 1.28];
+      for (let i = group.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [group[i], group[j]] = [group[j], group[i]];
+      }
+      out.push(...group);
+    }
+    return out;
+  };
+
+  // Cycle bubbles in batches of roughly eight. Every bubble in a batch shares a
+  // clock, while the batches are evenly distributed through the full cycle.
+  const setBatchCycle = (slot, i, count) => {
+    const duration = 14;
+    const batches = Math.max(1, Math.round(count / 8));
+    const batch = Math.min(batches - 1, Math.floor(i * batches / count));
+    slot.style.setProperty("--ddur", duration + "s");
+    slot.style.setProperty("--ddelay", (-(batch * duration / batches)).toFixed(2) + "s");
+  };
+
+  // Collision detection is intentionally separate from the normal bubble cycle:
+  // it only intervenes when a bubble reaches a visible head or sub-branch.
+  const watchedWraps = new Set();
+  let collisionRaf = 0, collisionTick = 0;
+  const touchesDandelion = (slot, target) => {
+    const a = slot.getBoundingClientRect(), b = target.getBoundingClientRect();
+    const ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+    const bx = b.left + b.width / 2, by = b.top + b.height / 2;
+    return Math.hypot(ax - bx, ay - by) < (Math.min(a.width, a.height) + Math.min(b.width, b.height)) * 0.42;
+  };
+  const watchCollisions = (wrap) => {
+    watchedWraps.add(wrap);
+    if (collisionRaf) return;
+    const frame = (now) => {
+      if (now - collisionTick > 160) {
+        collisionTick = now;
+        const targets = [...document.querySelectorAll(".branch:not(.is-faded) .branch__head, .branch:not(.is-faded) .sub")];
+        watchedWraps.forEach((field) => field.querySelectorAll(".bubble-slot").forEach((slot) => {
+          if (slot._respawning || getComputedStyle(field).opacity === "0") return;
+          if (targets.some((target) => touchesDandelion(slot, target))) slot.dispatchEvent(new Event("bubble:collision"));
+        }));
+      }
+      collisionRaf = requestAnimationFrame(frame);
+    };
+    collisionRaf = requestAnimationFrame(frame);
+  };
+  const bindCollisionRespawn = (slot, relocate) => slot.addEventListener("bubble:collision", () => {
+    if (slot._respawning) return;
+    slot._respawning = true;
+    slot.classList.add("bubble-collision");
+    window.setTimeout(() => {
+      relocate(slot);
+      slot.style.setProperty("--ddelay", "0s");
+      slot.classList.remove("bubble-collision");
+      slot._respawning = false;
+    }, 420);
+  });
+
   const fill = (wrap, layout, accept) => {
     const pool = buildPool(layout, accept);
     const taken = new Array(pool.length).fill(false);
+    const sizeScales = shuffledSizeScales(layout.length);
 
     const place = (slot, idx) => {
       const p = pool[idx];
       const ang = Math.random() * Math.PI * 2, amp = DRIFT();
       slot.style.setProperty("--bx", p.x.toFixed(2) + "%");
       slot.style.setProperty("--by", p.y.toFixed(2) + "%");
-      slot.style.setProperty("--bs", p.s.toFixed(2) + "%");
+      slot.style.setProperty("--bs", (p.s * slot._sizeScale).toFixed(2) + "%");
       slot.style.setProperty("--dx", (Math.cos(ang) * amp).toFixed(2) + "cqw");
       slot.style.setProperty("--dy", (Math.sin(ang) * amp).toFixed(2) + "cqw");
     };
@@ -308,10 +373,8 @@
     layout.forEach((b, i) => {
       const slot = document.createElement("div");
       slot.className = "bubble-slot";
-      const dur = 10 + (i % 6) * 1.1; // 10.0 .. 15.5s
-      const frac = (i * 0.61803398875) % 1;
-      slot.style.setProperty("--ddur", dur.toFixed(1) + "s");
-      slot.style.setProperty("--ddelay", (-frac * dur).toFixed(2) + "s");
+      slot._sizeScale = sizeScales[i];
+      setBatchCycle(slot, i, layout.length);
       taken[i] = true;
       slot._pi = i;
       place(slot, i);
@@ -323,26 +386,48 @@
       slot.appendChild(img);
       wrap.appendChild(slot);
       slot.addEventListener("animationiteration", () => relocate(slot));
+      bindCollisionRespawn(slot, relocate);
     });
+    watchCollisions(wrap);
   };
 
   // Static motif filler (state 2): each bubble is a small copy of the dandelion
   // puff (#sub-purple-motif) at a FIXED spot. `b.m` marks a magenta bubble.
   const SVGNS = "http://www.w3.org/2000/svg";
-  // Randomised size, biased LARGE ("more than small"): alternate a big and a small
-  // band with a little jitter, so the field is a natural mix of big and small puffs
-  // rather than one uniform size. Positions stay exactly as authored.
-  const rollSize = (i) => {
-    const big = i % 2 === 0;
-    return (big ? 7.0 : 4.2) + Math.random() * (big ? 3.4 : 2.4); // big 7-10.4, small 4.2-6.6
-  };
+  // The reference composition is fixed: each authored entry supplies both its
+  // centre and its diameter, so reloads preserve the exact arrangement.
   const fillMotif = (wrap, layout, motifId) => {
+    const sizeScales = shuffledSizeScales(layout.length);
+    const pool = buildPool(layout);
+    const taken = new Array(pool.length).fill(false);
+    const place = (slot, idx) => {
+      const p = pool[idx];
+      slot.style.setProperty("--bx", p.x.toFixed(2) + "%");
+      slot.style.setProperty("--by", p.y.toFixed(2) + "%");
+      slot.style.setProperty("--bs", (p.s * slot._sizeScale).toFixed(2) + "%");
+    };
+    const relocate = (slot) => {
+      const current = slot._pi;
+      if (current != null) taken[current] = false;
+      const free = pool.map((_, i) => i).filter((i) => !taken[i] && i !== current);
+      const options = free.filter((i) => !current || d2(pool[i].x, pool[i].y, pool[current].x, pool[current].y) >= 25);
+      const next = (options.length ? options : free)[(Math.random() * (options.length || free.length)) | 0];
+      if (next == null) { if (current != null) taken[current] = true; return; }
+      taken[next] = true;
+      slot._pi = next;
+      place(slot, next);
+    };
     layout.forEach((b, i) => {
       const slot = document.createElement("div");
-      slot.className = "bubble-slot";
-      slot.style.setProperty("--bx", b.x + "%");
-      slot.style.setProperty("--by", b.y + "%");
-      slot.style.setProperty("--bs", rollSize(i).toFixed(2) + "%");
+      slot.className = "bubble-slot bubble-motif-slot";
+      slot._sizeScale = sizeScales[i];
+      slot._pi = i;
+      taken[i] = true;
+      place(slot, i);
+      setBatchCycle(slot, i, layout.length);
+      const angle = Math.random() * Math.PI * 2;
+      slot.style.setProperty("--dx", (Math.cos(angle) * 2.6).toFixed(2) + "cqw");
+      slot.style.setProperty("--dy", (Math.sin(angle) * 2.6).toFixed(2) + "cqw");
       const svg = document.createElementNS(SVGNS, "svg");
       svg.setAttribute("viewBox", "-1.12 -1.12 2.24 2.24");
       svg.setAttribute("class", "bubble-motif" + (b.m ? " bubble--magenta" : ""));
@@ -352,7 +437,10 @@
       svg.appendChild(use);
       slot.appendChild(svg);
       wrap.appendChild(slot);
+      slot.addEventListener("animationiteration", () => relocate(slot));
+      bindCollisionRespawn(slot, relocate);
     });
+    watchCollisions(wrap);
   };
 
   // 5 extra state-1 bubbles, hand-placed into the empty teal space just to the
@@ -367,6 +455,7 @@
     { x: 50.0, y: 74.0, s: 3.6 },
   ];
   const addFixed = (wrap, layout) => {
+    const sizeScales = shuffledSizeScales(layout.length);
     layout.forEach((b, i) => {
       const slot = document.createElement("div");
       slot.className = "bubble-slot";
@@ -375,14 +464,14 @@
       const ang = i * 2.399963;
       slot.style.setProperty("--bx", b.x + "%");
       slot.style.setProperty("--by", b.y + "%");
-      slot.style.setProperty("--bs", b.s + "%");
+      slot.style.setProperty("--bs", (b.s * sizeScales[i]).toFixed(2) + "%");
       slot.style.setProperty("--ddur", dur.toFixed(1) + "s");
       slot.style.setProperty("--ddelay", (-frac * dur).toFixed(2) + "s");
-      slot.style.setProperty("--dx", (Math.cos(ang) * 0.7).toFixed(2) + "cqw");
-      slot.style.setProperty("--dy", (Math.sin(ang) * 0.7).toFixed(2) + "cqw");
+      slot.style.setProperty("--dx", (Math.cos(ang) * 2.6).toFixed(2) + "cqw");
+      slot.style.setProperty("--dy", (Math.sin(ang) * 2.6).toFixed(2) + "cqw");
       const img = document.createElement("img");
       img.className = "bubble";
-      img.src = ASSETS[0];
+      img.src = ASSETS[i % ASSETS.length];
       img.alt = "";
       img.decoding = "async";
       slot.appendChild(img);
