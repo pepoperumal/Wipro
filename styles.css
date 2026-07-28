@@ -568,8 +568,16 @@ body {
    between its two turning points, so the pair never looks mirrored, the pose
    does not repeat for minutes, and no cycle has a sharp turn in it.
 --------------------------------------------------------------------------- */
+/* No `will-change` here, deliberately. Hinting `scale` promotes the whole plant
+   -- stem, head and the entire .subs layer -- onto its own composited layer,
+   which Chrome rasterises ONCE and then scales as a bitmap. Everything in the
+   puffs is tiny: the seed dots are barely a pixel across at rest, so blowing a
+   cached bitmap up through the branch's breath (and, on a drill-down, through
+   the 0.5 -> 1 grow) smears every dot into a soft, lumpy blob instead of a round
+   dot. Without the hint the SVG is re-rendered from vectors at whatever scale
+   the frame needs, and the dots stay perfectly circular at every size. */
 .branch {
-  will-change: rotate, scale;
+  /* intentionally empty of compositing hints -- see above */
 }
 
 /* Green's box hangs 6% below the screen, so its anchor is the point where the
@@ -1122,6 +1130,14 @@ body {
   transform: scale(calc(0.45 + 0.55 * var(--o)))
              rotate(calc((1 - var(--o)) * -14deg));
 
+  /* Alpha falls off ring by ring, innermost solid to outermost faintest, so the
+     puff fades into its own glow instead of ending on a hard edge.
+     Deliberately `fill-opacity` and not `opacity`: the shimmer below animates
+     `opacity`, and an animation beats a plain declaration, so an opacity here
+     would simply be overwritten every frame. The two multiply -- this sets how
+     solid the ring is, the shimmer breathes around it. */
+  fill-opacity: var(--ring-a, 1);
+
   animation: ring-ripple var(--ripple-dur, 9.5s) ease-in-out infinite,
              ring-shimmer var(--shimmer-dur, 6.5s) ease-in-out infinite;
   /* Inner rings lead: a negative, index-scaled delay is what turns nine
@@ -1132,12 +1148,15 @@ body {
   animation-play-state: var(--puff-anim, running);
 }
 
-/* --ring-i drives the ripple delay; --lag / --gain drive the unfurl stagger.
-   Green has 3 rings so it can afford a wide lag step; purple has 8 and needs a
-   narrow one, or its outermost ring would still be shut when the petal is open. */
-#sub-green-motif .ring--1 { --ring-i: 0; --lag: 0;    --gain: 1;      }
-#sub-green-motif .ring--2 { --ring-i: 1; --lag: 0.16; --gain: 1.1905; }
-#sub-green-motif .ring--3 { --ring-i: 2; --lag: 0.32; --gain: 1.4706; }
+/* --ring-i drives the ripple delay; --lag / --gain drive the unfurl stagger;
+   --ring-a is the ring's own alpha, stepping down evenly from the solid inner
+   ring to the faintest outer one. Green has 3 rings so it can afford a wide lag
+   step; purple has 8 and needs a narrow one, or its outermost ring would still
+   be shut when the petal is open. Purple sets no --ring-a, so it falls back to
+   1 and every purple ring stays as solid as it was. */
+#sub-green-motif .ring--1 { --ring-i: 0; --lag: 0;    --gain: 1;      --ring-a: 1;    }
+#sub-green-motif .ring--2 { --ring-i: 1; --lag: 0.16; --gain: 1.1905; --ring-a: 0.75; }
+#sub-green-motif .ring--3 { --ring-i: 2; --lag: 0.32; --gain: 1.4706; --ring-a: 0.5;  }
 
 /* The outermost green ring (ring--3, the LAST ring) is lemon-green on the green
    SUB-BRANCHES. It reads a variable that only .branch--green sets, and CSS fill
