@@ -116,6 +116,7 @@
   const FADE_MS = 800;
   const HEAD = { x: 50, y: 50 }; // head centre in the subs' 0..100 viewBox
   const SMIN = 0.12;             // petal scale when fully collapsed at the centre
+  const HMIN = 0.7;              // main circle's size when its petals are fully gathered
 
   const easeInOut = (x) =>
     x <= 0 ? 0 : x >= 1 ? 1 : x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
@@ -147,6 +148,15 @@
   let closing = false; // true while the closing motion plays (guards re-entry)
   let drillActive = false; // a sub-branch was pressed -> state 3; suspends the idle
                            // auto-revert (a committed state never times out on its own)
+
+  // The two main circles, driven per frame during the bloom (see follow()). The
+  // inline transition is killed while we drive them, so each frame lands exactly
+  // on the curve instead of chasing a CSS ease.
+  const heads = () =>
+    document.querySelectorAll(".branch--green .branch__head, .branch--purple .branch__head");
+
+  const resetHeads = () =>
+    heads().forEach((h) => { h.style.transform = ""; h.style.transition = ""; });
 
   const subParams = (slot, id) => {
     const cs = getComputedStyle(slot.closest(".subs"));
@@ -226,10 +236,14 @@
     if (!bloomStart) bloomStart = ts;
     const t = ts - bloomStart;
 
+    const headSum = {}; // per colour: summed petal openness, for the head's own size
     for (const p of petals) {
       const cfg = BLOOM[p.color];
       const o = openness(cfg, p.i, t, p.startO);
       p.lastO = o;
+      const h = (headSum[p.color] ||= { sum: 0, n: 0 });
+      h.sum += o;
+      h.n++;
       const tx = HEAD.x + o * (p.L - HEAD.x);
       const ty = HEAD.y + o * (p.T - HEAD.y);
       const sc = p.S * (SMIN + (1 - SMIN) * o); // UNIFORM scale -> circle stays round
@@ -252,6 +266,17 @@
       // position, scale, timing and path are unchanged, so circles stay round.
       const openEnd = cfg.inward + p.i * cfg.stagger + cfg.outward;
       p.target.style.opacity = t >= openEnd ? "1" : o.toFixed(3);
+    }
+    // The main circle rides its OWN cluster's mean openness: it draws in exactly as
+    // that plant's petals gather and grows back out exactly as they open, so ball
+    // and puffs read as one gesture. Mean (not max/min) so the staggered opening
+    // reads as the whole cluster spreading rather than the first petal dragging the
+    // ball open on its own. The pivot is CSS (50% 78%, below the tail joint).
+    for (const color in headSum) {
+      const h = document.querySelector(`.branch--${color} .branch__head`);
+      if (!h) continue;
+      const o = headSum[color].sum / headSum[color].n;
+      h.style.transform = `scale(${(HMIN + (1 - HMIN) * o).toFixed(4)})`;
     }
     // Fade the labels in a little BEFORE every petal has fully landed -- by now
     // they are essentially open, so the text arrives promptly instead of feeling
@@ -285,7 +310,8 @@
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
     const app = document.querySelector(".app");
-    if (app) app.classList.remove("subs-live"); // rings stop spinning outside state 2
+    if (app) app.classList.remove("subs-live", "is-blooming"); // rings stop spinning, tail tucks back in
+    resetHeads(); // hand the main circles' size back to CSS
     litPhase2(false); // the bloom-time bubbles belong to state 2 only
     for (const p of petals) {
       p.target.style.transform = ""; // hand petals back to CSS
@@ -350,9 +376,11 @@
     idleTimer = 0;
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
-    // Back to state 1: stop the "clickable" ring spin.
+    // Back to state 1: stop the "clickable" ring spin and let the main circles
+    // ease back to full size alongside the exit cross-fade.
     const app = document.querySelector(".app");
-    if (app) app.classList.remove("subs-live");
+    if (app) app.classList.remove("subs-live", "is-blooming");
+    resetHeads(); // the main circles are back at full size -- hand them to CSS
     litPhase2(false);
 
     // Drop the labels: they fade out with the dandelion as it cross-fades below.
@@ -426,7 +454,22 @@
     // 1. the bubbles STAY exactly as they are -- only the dandelions bloom. (They
     //    used to fade out here while a sparser field faded in later; that
     //    disappear-then-reappear is gone -- the ambient field is left untouched.)
-    // 2. build the labels (hidden); 3. the bloom runs in follow(), and the labels
+    // 2. the main circles pull in while the petals gather to the centre and grow
+    //    back out as they open -- driven per frame in follow() off the very same
+    //    openness curve. No CSS ease of their own, or it would lag the petals.
+    heads().forEach((h) => { h.style.transition = "none"; });
+    // The tail's top fades out with the shrink and back in once the ball is full
+    // size again (CSS: .stem-tuck). Dropping the class at the end of the inward
+    // draw starts its delayed fade back.
+    const app = document.querySelector(".app");
+    if (app) {
+      app.classList.add("is-blooming");
+      window.setTimeout(
+        () => app.classList.remove("is-blooming"),
+        BLOOM.green.inward
+      );
+    }
+    // 3. build the labels (hidden); 4. the bloom runs in follow(), and the labels
     //    fade + scale in only once every petal has landed (see the reveal check).
     buildLabels();
   }
@@ -447,7 +490,12 @@
     // State 3 is still: the puff ring animation belongs to state 2 only, and so
     // do the bloom-time bubbles -- dim them as the drill takes over.
     const app = document.querySelector(".app");
-    if (app) app.classList.remove("subs-live");
+    // The drilled plant is presented at its authored size: drop the bloom shrink in
+    // case the drill lands before it has grown back out on its own. This runs before
+    // drilldown.js touches the head (it fires this event first), so nothing of ours
+    // is left to fight its grow.
+    if (app) app.classList.remove("subs-live", "is-blooming");
+    resetHeads();
     litPhase2(false);
     window.clearTimeout(idleTimer);
     idleTimer = 0;

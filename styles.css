@@ -274,6 +274,34 @@ body {
 
 .branch__head {
   z-index: 1; /* the head always covers the top of its stem */
+  /* During the Space bloom the main circle's size is driven per frame by
+     labels.js, off the SAME eased openness curve as the petals: it draws in as
+     they gather to the centre and grows back out as they open, so the two are one
+     gesture rather than two clocks that nearly agree. That runs on `transform`,
+     leaving `scale` to the idle breathing underneath.
+
+     Both heads pivot at 50% 78% -- the bottom of the opaque core, BELOW where each
+     tail's tip tucks in. A circle contracting toward a point past the joint keeps
+     that joint buried under the core the whole way down; contracting about the
+     centre instead pulls the rim past the purple tip (it meets the head at 48% of
+     the radius) and leaves a stub of tail sticking out over the shrunken ball. */
+}
+
+/* The tail's top -- the stretch that tucks into the underside of the ball -- fades
+   out with the shrink and comes back only once the ball has fully grown again, so
+   the joint is never caught half-exposed. It rides the stroke gradient's FIRST
+   stop: above that stop's own y the gradient pads with its colour, so dropping its
+   opacity clears everything from the tip down and ramps back to solid at the next
+   stop (~29 units below on green, ~34 on purple) -- a soft hand-off, no visible cut,
+   and no extra mask or element. Out over the shrink (2.6s); back in only after the
+   4.8s grow-back has landed. */
+.stem-tuck {
+  transition: stop-opacity 1s ease-in-out 4.8s;
+}
+
+.app.is-blooming .stem-tuck {
+  stop-opacity: 0;
+  transition: stop-opacity 2.6s ease-in-out;
 }
 
 /* Green stem: its top tip (95% across its own width) meets the head centre at
@@ -603,8 +631,14 @@ body {
 .branch--purple {
   transform-origin: 5.8% 100%; /* where the purple stem meets the bottom */
   animation-name: sway-purple, breathe-purple;
-  animation-duration: 20s, 23s;
-  animation-delay: -7s, -14s;
+  /* Sway locked to green's period + phase (17s, -4s). The two sway curves are
+     already mirror-shaped (green leans left as purple leans right), so matching
+     the clock keeps them ALWAYS opposite instead of drifting into sync -- the
+     heads never sway together. (breathe stays on its own 23s so size still
+     desyncs.) The rise/lift is already anti-phase, so vertically green rises
+     while purple sinks. */
+  animation-duration: 17s, 23s;
+  animation-delay: -4s, -14s;
   animation-timing-function: ease-in-out, ease-in-out;
   animation-iteration-count: infinite;
 }
@@ -684,8 +718,14 @@ body {
    centre, so breathing in can never lift the circle off the tail's top. The
    subs share that pivot so the puff cluster and the ball breathe as one and
    never slide against each other. */
+/* Purple shares the same anchor, for the same reason: the Space bloom's shrink
+   rides this pivot, and contracting toward a point below the joint keeps its tail
+   tip buried under the core instead of poking out over the shrunken ball. Its
+   subs match it so the puff cluster and the ball still move as one. */
 .branch--green .branch__head,
-.branch--green .subs {
+.branch--green .subs,
+.branch--purple .branch__head,
+.branch--purple .subs {
   transform-origin: 50% 78%;
 }
 
@@ -901,12 +941,15 @@ body {
    rigid on its stem. Kept well under the rise amplitude -- it seasons the
    motion rather than driving it. Purple only: green drops the head drift so its
    head never moves out from under the stem top (see .branch--green .branch__head). */
+/* Runs on the standalone `translate` property, not `transform`: the bloom-time
+   shrink (.is-blooming below) owns `transform`, and the two must not overwrite
+   each other. Same motion as before. */
 @keyframes float-purple {
-  0%   { transform: translate(0, 0); }
-  31%  { transform: translate(-0.7%, 2.2%); }
-  58%  { transform: translate(0.5%, 0.4%); }
-  82%  { transform: translate(-0.35%, -1.7%); }
-  100% { transform: translate(0, 0); }
+  0%   { translate: 0 0; }
+  31%  { translate: -0.7% 2.2%; }
+  58%  { translate: 0.5% 0.4%; }
+  82%  { translate: -0.35% -1.7%; }
+  100% { translate: 0 0; }
 }
 
 /* Bloom: accelerate out of full bloom, settle into the closed pose, ease open
